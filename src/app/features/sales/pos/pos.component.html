@@ -1,0 +1,179 @@
+<div class="pos-layout">
+  <!-- LEFT: CART & ITEM SELECTION -->
+  <div class="pos-left">
+    <!-- SEARCH & SCAN TOOLBAR -->
+    <div class="pos-toolbar">
+      <div class="search-box">
+        <span class="material-symbols-outlined icon">barcode_scanner</span>
+        <input type="text"
+               placeholder="Quét mã vạch thuốc hoặc gõ tên/hoạt chất (F3)..."
+               [(ngModel)]="searchQuery"
+               class="form-control">
+      </div>
+      <div class="quick-suggests">
+        @for (prod of sampleProducts; track prod.code) {
+          <button class="pill-btn" (click)="addProductToCart(prod)">
+            + {{ prod.name }} ({{ prod.price | number }}đ)
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- CART DATA TABLE -->
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 40px">#</th>
+            <th>Tên thuốc / Biệt dược</th>
+            <th style="width: 100px">Số lô / Hạn</th>
+            <th style="width: 80px">ĐVT</th>
+            <th style="width: 120px" class="text-center">Số lượng</th>
+            <th style="width: 110px" class="text-right">Đơn giá</th>
+            <th style="width: 90px" class="text-right">Giảm giá</th>
+            <th style="width: 120px" class="text-right">Thành tiền</th>
+            <th style="width: 40px"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of cart(); track item.id; let idx = $index) {
+            <tr>
+              <td class="text-muted">{{ idx + 1 }}</td>
+              <td>
+                <div class="item-name">{{ item.name }}</div>
+                <div class="item-code">{{ item.code }}</div>
+              </td>
+              <td>
+                <span class="badge badge-success">{{ item.lotNumber }}</span>
+                <div class="item-exp">HSD: {{ item.expiryDate }}</div>
+              </td>
+              <td><span class="unit-tag">{{ item.unit }}</span></td>
+              <td class="text-center">
+                <div class="qty-control">
+                  <button (click)="updateQuantity(item.id, -1)" class="btn-qty">-</button>
+                  <input type="number" [(ngModel)]="item.quantity" class="qty-input">
+                  <button (click)="updateQuantity(item.id, 1)" class="btn-qty">+</button>
+                </div>
+              </td>
+              <td class="text-right font-mono">{{ item.price | number }} đ</td>
+              <td class="text-right text-muted font-mono">{{ (item.discount || 0) | number }} đ</td>
+              <td class="text-right font-bold text-primary font-mono">
+                {{ ((item.quantity * item.price) - (item.discount || 0)) | number }} đ
+              </td>
+              <td>
+                <button class="btn-del" (click)="removeItem(item.id)" title="Xóa dòng">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </td>
+            </tr>
+          }
+          @if (cart().length === 0) {
+            <tr>
+              <td colspan="9" class="empty-state">
+                <span class="material-symbols-outlined">shopping_cart</span>
+                <p>Giỏ hàng chưa có thuốc nào. Vui lòng quét mã hoặc chọn thuốc phía trên.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SHORTCUT LEGEND -->
+    <div class="pos-footer-shortcuts">
+      <span><kbd>F2</kbd> Tìm thuốc</span>
+      <span><kbd>F4</kbd> Tạm lưu đơn</span>
+      <span><kbd>F8</kbd> Thêm khách hàng</span>
+      <span><kbd>F9</kbd> Thanh toán & In</span>
+    </div>
+  </div>
+
+  <!-- RIGHT: BILLING & CHECKOUT PANEL -->
+  <div class="pos-right">
+    <div class="checkout-card">
+      <div class="card-header">
+        <h3>Thông Tin Đơn Hàng</h3>
+        <span class="order-id">HD{{ 12480 }}</span>
+      </div>
+
+      <!-- Customer & Doctor -->
+      <div class="form-section">
+        <div class="form-row">
+          <label>Khách hàng:</label>
+          <div class="input-with-action">
+            <input type="text" [(ngModel)]="customerName" class="form-control" placeholder="Tên khách hàng">
+            <button class="btn btn-outline btn-sm" title="Khách quen / Tích điểm">
+              <span class="material-symbols-outlined">person_search</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label>SĐT:</label>
+          <input type="text" [(ngModel)]="customerPhone" class="form-control" placeholder="Số điện thoại khách">
+        </div>
+
+        <div class="form-row">
+          <label>Bác sĩ kê đơn:</label>
+          <input type="text" [(ngModel)]="doctorName" class="form-control" placeholder="Tên BS (nếu thuốc kê đơn)">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Payment Method -->
+      <div class="form-section">
+        <label class="section-label">Hình thức thanh toán:</label>
+        <div class="payment-tabs">
+          <button [class.active]="paymentMethod === 'CASH'" (click)="paymentMethod = 'CASH'">
+            <span class="material-symbols-outlined">payments</span> Tiền mặt
+          </button>
+          <button [class.active]="paymentMethod === 'QR'" (click)="paymentMethod = 'QR'">
+            <span class="material-symbols-outlined">qr_code_scanner</span> QR Chuyển khoản
+          </button>
+          <button [class.active]="paymentMethod === 'CARD'" (click)="paymentMethod = 'CARD'">
+            <span class="material-symbols-outlined">credit_card</span> Thẻ POS
+          </button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Summary calculations -->
+      <div class="summary-section">
+        <div class="summary-row">
+          <span>Tổng tiền hàng:</span>
+          <span class="val">{{ subTotal() | number }} đ</span>
+        </div>
+        <div class="summary-row text-danger">
+          <span>Giảm giá / Chiết khấu:</span>
+          <span class="val">-{{ totalDiscount() | number }} đ</span>
+        </div>
+        <div class="summary-row total-row">
+          <span>KHÁCH CẦN TRẢ:</span>
+          <span class="total-val">{{ grandTotal() | number }} đ</span>
+        </div>
+
+        <div class="summary-row cash-row">
+          <label>Tiền khách đưa:</label>
+          <input type="number" [(ngModel)]="customerCash" class="form-control cash-input" placeholder="0">
+        </div>
+
+        <div class="summary-row change-row">
+          <span>Tiền thừa trả khách:</span>
+          <span class="change-val">{{ changeAmount() | number }} đ</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="checkout-actions">
+        <button class="btn btn-outline" (click)="clearCart()">
+          <span class="material-symbols-outlined">cancel</span> Hủy đơn
+        </button>
+        <button class="btn btn-primary" (click)="checkout()">
+          <span class="material-symbols-outlined">print</span> Thanh toán & In (F9)
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

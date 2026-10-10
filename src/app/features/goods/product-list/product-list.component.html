@@ -1,0 +1,177 @@
+<div class="product-page">
+  <!-- TOP TOOLBAR (EXCEL & RELOAD) -->
+  <div class="sub-toolbar">
+    <button class="tool-btn" (click)="exportExcel()">
+      <span class="excel-icon">XLS</span>
+      <span>Xuất file Excel</span>
+    </button>
+    <button class="tool-btn" (click)="reload()" [disabled]="isLoading()">
+      <span class="material-symbols-outlined reload-icon" [class.spinning]="isLoading()">sync</span>
+      <span>{{ isLoading() ? 'Đang tải...' : 'Tải lại' }}</span>
+    </button>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="grid-card">
+    <div class="grid-header-title">
+      <h3>Danh sách sản phẩm trong hệ thống</h3>
+      @if (noPermission()) {
+        <span class="ribbon-perm-badge">
+          <span class="material-symbols-outlined badge-icon">lock</span>
+          <span>Không có quyền</span>
+        </span>
+      }
+    </div>
+
+    <!-- No Permission Warning Banner -->
+    @if (noPermission()) {
+      <div class="no-permission-banner">
+        <div class="perm-banner-icon">
+          <span class="material-symbols-outlined icon">lock_person</span>
+        </div>
+        <div class="perm-banner-content">
+          <div class="perm-badge-row">
+            <span class="badge-lock">KHÔNG CÓ QUYỀN TRUY CẬP</span>
+            <span class="badge-code">RespCode: 202</span>
+          </div>
+          <div class="perm-message-text">
+            Máy chủ phản hồi: <strong>"{{ noPermissionMessage() || 'Không có quyền' }}"</strong>
+          </div>
+          <div class="perm-hint-text">
+            Tài khoản hiện tại của bạn chưa được phân quyền truy cập chức năng Sản phẩm trong hệ thống trên uPharma.
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- FILTER BAR (DEVEXPRESS FIND PANEL) -->
+    <div class="grid-filter-bar">
+      <div class="find-panel">
+        <div class="search-combobox">
+          <input #searchInput
+                 type="text"
+                 placeholder="Nhập từ khóa tìm kiếm"
+                 [(ngModel)]="searchKeyword"
+                 (keydown.enter)="onFind()"
+                 [disabled]="isLoading()"
+                 autofocus
+                 class="filter-input">
+          <button class="combo-arrow" type="button" title="Lịch sử tìm kiếm">
+            <span class="material-symbols-outlined">arrow_drop_down</span>
+          </button>
+        </div>
+        <button class="dx-btn dx-btn-find" type="button" (click)="onFind()" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <span class="btn-spinner">Đang tìm...</span>
+          } @else {
+            <span>Find</span>
+          }
+        </button>
+        <button class="dx-btn dx-btn-clear" type="button" (click)="onClear()" [disabled]="isLoading()">Clear</button>
+      </div>
+    </div>
+
+    <!-- DEVEXPRESS-STYLE GRIDVIEW -->
+    <div class="table-scroll-container">
+      <table class="devexpress-table">
+        <thead>
+          <tr>
+            <th class="row-indicator text-center" style="width: 44px"></th>
+            <th style="width: 110px" class="text-center">Hạn Sd</th>
+            <th style="width: 110px">Mã sản phẩm</th>
+            <th style="min-width: 260px">Tên sản phẩm</th>
+            <th style="min-width: 220px">Tên HĐ nhà cung cấp</th>
+            <th style="width: 70px" class="text-right">VAT %</th>
+            <th style="width: 120px">Số đăng ký</th>
+            <th style="width: 130px">Loại đóng gói</th>
+            <th style="min-width: 180px">Nhà sản xuất</th>
+            <th style="width: 120px">Nước sản xuất</th>
+            <th style="width: 140px">Dạng bào chế</th>
+            <th style="width: 160px">Loại dược lý</th>
+            <th style="width: 160px">Điều kiện bảo quản</th>
+            <th style="width: 90px" class="text-center">Hàng dừng</th>
+            <th style="width: 130px">Thời gian tạo</th>
+            <th style="width: 100px">Người tạo</th>
+            <th style="width: 80px" class="text-center">Kê đơn</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (noPermission()) {
+            <tr class="empty-row no-permission-row">
+              <td colspan="17" class="text-center">
+                <div class="no-permission-state">
+                  <div class="lock-graphic">
+                    <span class="material-symbols-outlined lock-big-icon">lock</span>
+                  </div>
+                  <h3 class="no-perm-title">Không có quyền truy cập sản phẩm</h3>
+                  <div class="no-perm-chip">
+                    <span class="material-symbols-outlined chip-icon">gpp_maybe</span>
+                    <span>Mã phản hồi: 202 - {{ noPermissionMessage() || 'Không có quyền' }}</span>
+                  </div>
+                  <p class="no-perm-explain">
+                    Tài khoản của bạn chưa được cấp quyền xem dữ liệu danh mục sản phẩm trên hệ thống uPharma.
+                  </p>
+                  <span class="no-perm-hint">
+                    Vui lòng liên hệ người quản trị để được phân quyền chức năng này.
+                  </span>
+                </div>
+              </td>
+            </tr>
+          } @else if (filteredProducts().length === 0 && !isLoading()) {
+            <tr class="empty-row">
+              <td colspan="17" class="text-center py-8 text-muted">
+                Không tìm thấy sản phẩm nào phù hợp với điều kiện tìm kiếm.
+              </td>
+            </tr>
+          } @else {
+            @for (p of filteredProducts(); track p.ProductCode || $index) {
+              <tr [class.urgent-row]="p.ExpiryDaysNum !== undefined && p.ExpiryDaysNum !== null && p.ExpiryDaysNum <= 90"
+                  [class.row-color-yellow]="p.ExpiryDaysNum !== undefined && p.ExpiryDaysNum !== null && p.ExpiryDaysNum <= 90"
+                  [class.row-color-wheat]="p.ExpiryDaysNum !== undefined && p.ExpiryDaysNum !== null && p.ExpiryDaysNum > 90 && p.ExpiryDaysNum <= 150"
+                  [class.row-color-whitesmoke]="p.ExpiryDaysNum !== undefined && p.ExpiryDaysNum !== null && p.ExpiryDaysNum > 150 && p.ExpiryDaysNum <= 180"
+                  [class.selected-row]="selectedIndex() === $index"
+                  (click)="selectRow($index)">
+                <td class="row-indicator text-center">
+                  @if (selectedIndex() === $index) {
+                    <span class="indicator-arrow">▸</span>
+                  }
+                  <span class="stt-num">{{ $index + 1 }}</span>
+                </td>
+                <td class="text-center font-medium font-mono cell-expiry">
+                  {{ p.ExpiryDays || '—' }}
+                </td>
+                <td class="font-bold text-primary font-mono">{{ p.ProductCode }}</td>
+                <td class="font-medium text-dark">{{ p.ProductName }}</td>
+                <td class="text-muted">{{ p.InvoiceName }}</td>
+                <td class="text-right font-mono">{{ p.VAT }}%</td>
+                <td class="font-mono">{{ p.RegNo }}</td>
+                <td>{{ p.PackagingType }}</td>
+                <td>{{ p.Manufacturer }}</td>
+                <td>{{ p.Country }}</td>
+                <td>{{ p.DosageForm }}</td>
+                <td>{{ p.PharmacologyType }}</td>
+                <td>{{ p.StorageCondition }}</td>
+                <td class="text-center">
+                  @if (p.IsStopped) {
+                    <span class="badge badge-danger">Dừng</span>
+                  } @else {
+                    <span class="badge badge-success">Bình thường</span>
+                  }
+                </td>
+                <td class="text-muted text-sm font-mono">{{ p.CreatedDate }}</td>
+                <td class="text-sm">{{ p.CreatedBy }}</td>
+                <td class="text-center">
+                  @if (p.IsPrescription) {
+                    <span class="rx-tag">Rx</span>
+                  } @else {
+                    <span class="otc-tag">OTC</span>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

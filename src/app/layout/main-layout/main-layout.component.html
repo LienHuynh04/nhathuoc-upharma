@@ -1,0 +1,137 @@
+<div class="upharma-window">
+  <!-- VIEW 1: BACKSTAGE MENU VIEW (TRANG CHỦ) -->
+  @if (tabManager.activeTabId() === 'home') {
+    <div class="backstage-container">
+      <!-- LEFT BLUE SIDEBAR -->
+      <aside class="backstage-sidebar">
+        <!-- Circular back button -->
+        <div class="back-btn-wrapper">
+          <button class="circle-back-btn" (click)="tabManager.selectTab('HH_1')" title="Trở về tab làm việc">
+            <span class="material-symbols-outlined">arrow_back</span>
+          </button>
+        </div>
+
+        <!-- Vertical Menu Items -->
+        <div class="backstage-nav">
+          @for (cat of categories; track cat.id) {
+            <button class="nav-tab-btn"
+                    [class.active]="selectedCategory() === cat.id"
+                    (click)="selectedCategory.set(cat.id)">
+              {{ cat.title }}
+            </button>
+          }
+        </div>
+
+        <!-- Bottom User & Logout Area -->
+        <div class="backstage-bottom-area">
+          <div class="user-chip" [title]="authService.currentUserName()">
+            <span class="material-symbols-outlined">person</span>
+            <span class="user-chip-name">{{ authService.currentUserName() }}</span>
+          </div>
+          <button class="backstage-logout-btn" (click)="logout()" title="Đăng xuất">
+            <span class="material-symbols-outlined">logout</span>
+            <span>Thoát</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- RIGHT WHITE TILES AREA -->
+      <main class="backstage-content">
+        <h1 class="category-heading">{{ getCurrentCategory().title }}</h1>
+
+        <div class="two-column-menu">
+          <!-- COLUMN 1 -->
+          <div class="menu-col">
+            @for (item of getCurrentCategory().itemsCol1; track item.code) {
+              <div class="tile-item" (click)="openMenuItem(item)">
+                <div class="tile-icon" [style.color]="item.iconColor">
+                  <span class="material-symbols-outlined">{{ item.icon }}</span>
+                </div>
+                <span class="tile-label">{{ item.title }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- COLUMN 2 -->
+          <div class="menu-col">
+            @for (item of getCurrentCategory().itemsCol2; track item.code) {
+              <div class="tile-item" (click)="openMenuItem(item)">
+                <div class="tile-icon" [style.color]="item.iconColor">
+                  <span class="material-symbols-outlined">{{ item.icon }}</span>
+                </div>
+                <span class="tile-label">{{ item.title }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </main>
+    </div>
+  }
+
+  <!-- VIEW 2: ACTIVE WORKSPACE TAB (VÍ DỤ: 1. SẢN PHẨM TRONG HỆ THỐNG) -->
+  @else {
+    <div class="workspace-container">
+      <!-- TOP TAB BAR -->
+      <div class="tab-strip">
+        <div class="tabs-list">
+          @for (tab of tabManager.tabs(); track tab.id) {
+            <div class="strip-tab"
+                 [class.active]="tabManager.activeTabId() === tab.id"
+                 (click)="tabManager.selectTab(tab.id)">
+              <span class="tab-text">{{ tab.title }}</span>
+              @if (tab.closable) {
+                <button class="close-x" (click)="tabManager.closeTab(tab.id, $event)">&times;</button>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- BLUE SUBHEADER BAR -->
+      <div class="blue-action-bar">
+        <div class="bar-left">
+          <button class="split-win-btn" title="Chế độ chia cửa sổ">
+            <span class="material-symbols-outlined">splitscreen</span>
+          </button>
+        </div>
+
+        <div class="bar-right">
+          <div class="breadcrumb-info">
+            <span class="white-dot"></span>
+            <span>3. Hàng hóa / {{ getActiveTabTitle() }}</span>
+          </div>
+
+          <div class="user-display">
+            <span class="material-symbols-outlined user-icon">person</span>
+            <span class="user-name">{{ authService.currentUserName() }}</span>
+          </div>
+
+          <button class="logout-btn" (click)="logout()" title="Đăng xuất">
+            <span class="material-symbols-outlined logout-icon">logout</span>
+            <span>Đăng xuất</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- MAIN PAGE CONTENT (ROUTER OUTLET) -->
+      <div class="workspace-content">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  }
+
+  <!-- GLOBAL LOADING SPINNER & ANTI-SPAM BLOCKING BACKDROP -->
+  @if (loadingService.isLoading()) {
+    <div class="global-loading-backdrop" title="Đang gửi yêu cầu tới máy chủ...">
+      <div class="global-dx-spinner-box">
+        <div class="dx-gear-spinner">
+          <span class="material-symbols-outlined spin-icon">sync</span>
+        </div>
+        <div class="dx-spinner-texts">
+          <div class="dx-spinner-title">Xin chờ</div>
+          <div class="dx-spinner-desc">Đang tải dữ liệu từ máy chủ icpc1hn.work...</div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

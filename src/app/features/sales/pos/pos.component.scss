@@ -1,0 +1,301 @@
+.pos-layout {
+  display: flex;
+  height: 100%;
+  gap: 1rem;
+}
+
+.pos-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+
+  .pos-toolbar {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    background-color: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      .icon {
+        position: absolute;
+        left: 0.75rem;
+        color: var(--primary);
+        font-size: 22px;
+      }
+
+      .form-control {
+        padding-left: 2.5rem;
+        font-size: 0.95rem;
+        height: 42px;
+        border-color: #cbd5e1;
+      }
+    }
+
+    .quick-suggests {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 2px;
+
+      .pill-btn {
+        background: #e2e8f0;
+        border: none;
+        border-radius: 9999px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+        color: #334155;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all 0.15s ease;
+
+        &:hover {
+          background-color: var(--primary-light);
+          color: var(--primary);
+        }
+      }
+    }
+  }
+
+  .table-container {
+    flex: 1;
+    overflow-y: auto;
+
+    .item-name {
+      font-weight: 600;
+      color: #0f172a;
+    }
+    .item-code {
+      font-size: 0.75rem;
+      color: #64748b;
+      font-family: monospace;
+    }
+    .item-exp {
+      font-size: 0.7rem;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .unit-tag {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .qty-control {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      overflow: hidden;
+
+      .btn-qty {
+        background: #f8fafc;
+        border: none;
+        width: 24px;
+        height: 24px;
+        font-weight: bold;
+        cursor: pointer;
+        &:hover { background: #e2e8f0; }
+      }
+
+      .qty-input {
+        width: 40px;
+        height: 24px;
+        border: none;
+        text-align: center;
+        font-size: 0.85rem;
+        font-weight: 600;
+        outline: none;
+      }
+    }
+
+    .btn-del {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      &:hover { color: var(--danger); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: #94a3b8;
+
+      .material-symbols-outlined {
+        font-size: 48px;
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+
+  .pos-footer-shortcuts {
+    padding: 0.5rem 1rem;
+    border-top: 1px solid var(--border-color);
+    background: #f8fafc;
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.75rem;
+    color: #64748b;
+
+    kbd {
+      background: #e2e8f0;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-weight: 600;
+      color: #334155;
+    }
+  }
+}
+
+/* RIGHT: CHECKOUT PANEL */
+.pos-right {
+  width: 360px;
+  flex-shrink: 0;
+
+  .checkout-card {
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+
+      h3 { font-size: 1rem; font-weight: 700; color: #0f172a; }
+      .order-id { font-size: 0.75rem; font-weight: 600; background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 4px; }
+    }
+
+    .form-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .section-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
+      }
+
+      .form-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        label { font-size: 0.75rem; font-weight: 500; color: #475569; }
+      }
+
+      .input-with-action {
+        display: flex;
+        gap: 4px;
+      }
+
+      .payment-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+
+        button {
+          background: #f8fafc;
+          border: 1px solid var(--border-color);
+          border-radius: 4px;
+          padding: 0.5rem 0.25rem;
+          font-size: 0.7rem;
+          font-weight: 600;
+          color: #475569;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 2px;
+          transition: all 0.15s ease;
+
+          .material-symbols-outlined { font-size: 18px; }
+
+          &.active {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+          }
+        }
+      }
+    }
+
+    .divider {
+      height: 1px;
+      background-color: var(--border-color);
+      margin: 0.75rem 0;
+    }
+
+    .summary-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #475569;
+        .val { font-weight: 600; font-family: monospace; }
+      }
+
+      .total-row {
+        background: #f0fdf4;
+        border: 1px dashed var(--success);
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        align-items: center;
+        span:first-child { font-weight: 700; color: #166534; }
+        .total-val { font-size: 1.25rem; font-weight: 800; color: #15803d; font-family: monospace; }
+      }
+
+      .cash-row {
+        align-items: center;
+        margin-top: 0.25rem;
+        .cash-input {
+          width: 140px;
+          text-align: right;
+          font-size: 1rem;
+          font-weight: 700;
+        }
+      }
+
+      .change-row {
+        align-items: center;
+        .change-val { font-size: 1rem; font-weight: 700; color: var(--primary); font-family: monospace; }
+      }
+    }
+
+    .checkout-actions {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+
+      button {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}

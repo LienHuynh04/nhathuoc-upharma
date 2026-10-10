@@ -1,0 +1,78 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-title">
+      <h2>Cài Đặt Kho Hàng & Định Vị Giá Kệ (SetupWarehouse & InputShelf)</h2>
+      <p class="subtitle">Quản lý hệ thống kho dược phẩm, tủ bảo quản và sơ đồ dãy/kệ/ngăn chứa thuốc</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline">
+        <span class="material-symbols-outlined">map</span> Sơ Đồ Kho 2D
+      </button>
+      <button class="btn btn-primary">
+        <span class="material-symbols-outlined">add</span> Thêm Kho Mới
+      </button>
+    </div>
+  </div>
+
+  <div class="two-col-grid">
+    <!-- WAREHOUSE LIST -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Danh Sách Kho Dược Phẩm</h3>
+        <span class="badge badge-success">{{ warehouses().length }} Kho</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Mã kho</th>
+            <th>Tên kho</th>
+            <th>Loại kho</th>
+            <th>Số kệ</th>
+            <th>Phụ trách</th>
+            <th class="text-center">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (wh of warehouses(); track wh.id) {
+            <tr>
+              <td class="font-mono text-primary font-bold">{{ wh.code }}</td>
+              <td class="font-bold">{{ wh.name }}</td>
+              <td><span class="badge badge-warning">{{ wh.type }}</span></td>
+              <td class="font-bold font-mono">{{ wh.totalShelves }}</td>
+              <td>{{ wh.manager }}</td>
+              <td class="text-center">
+                <button class="btn btn-outline btn-sm">
+                  <span class="material-symbols-outlined">settings</span>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SHELF SCHEME -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Sơ Đồ Giá Kệ (InputShelf)</h3>
+        <button class="btn btn-outline btn-sm">+ Thêm Giá Kệ</button>
+      </div>
+      <div class="shelf-grid">
+        @for (shelf of shelves(); track shelf.code) {
+          <div class="shelf-box">
+            <div class="shelf-head">
+              <span class="shelf-code">{{ shelf.code }}</span>
+              <span class="shelf-zone">{{ shelf.zone }}</span>
+            </div>
+            <div class="shelf-title">{{ shelf.name }}</div>
+            <div class="shelf-specs">
+              <span>{{ shelf.rows }} Tầng</span> &bull;
+              <span>{{ shelf.cols }} Ngăn/tầng</span> &bull;
+              <span class="capacity">Sức chứa: {{ shelf.rows * shelf.cols }} vị trí</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

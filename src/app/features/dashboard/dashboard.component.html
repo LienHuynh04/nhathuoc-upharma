@@ -1,0 +1,86 @@
+<div class="dashboard-page">
+  <!-- STATS TILES -->
+  <div class="stats-grid">
+    @for (s of stats; track s.title) {
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">{{ s.title }}</span>
+          <span class="material-symbols-outlined stat-icon">{{ s.icon }}</span>
+        </div>
+        <div class="stat-value">{{ s.value }}</div>
+        <div class="stat-footer">
+          <span class="trend-badge" [class]="s.trendType">{{ s.trend }}</span>
+          <span class="trend-desc">so với hôm qua</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- TWO-COLUMN OVERVIEW -->
+  <div class="overview-grid">
+    <!-- RECENT INVOICES -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Hóa Đơn Bán Gần Nhất (SalesInvoice)</h3>
+        <span class="material-symbols-outlined icon">receipt_long</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Mã HĐ</th>
+            <th>Giờ</th>
+            <th>Khách hàng</th>
+            <th class="text-right">Tổng tiền</th>
+            <th class="text-center">Hình thức</th>
+            <th class="text-center">Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (inv of recentInvoices; track inv.id) {
+            <tr>
+              <td class="font-mono font-bold text-primary">{{ inv.id }}</td>
+              <td class="text-muted">{{ inv.time }}</td>
+              <td class="font-bold">{{ inv.customer }}</td>
+              <td class="text-right font-mono font-bold">{{ inv.total | number }} đ</td>
+              <td class="text-center"><span class="badge badge-warning">{{ inv.method }}</span></td>
+              <td class="text-center"><span class="badge badge-success">{{ inv.status }}</span></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- EXPIRATION WARNING -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Cảnh Báo Thuốc Cận Date (SalesNearExpiration)</h3>
+        <span class="material-symbols-outlined icon text-danger">warning</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Tên thuốc</th>
+            <th>Lô / Hạn dùng</th>
+            <th>Tồn kho</th>
+            <th class="text-center">Còn lại</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (med of expiringMedicines; track med.name) {
+            <tr>
+              <td class="font-bold">{{ med.name }}</td>
+              <td>
+                <span class="font-mono text-muted">{{ med.lot }}</span> &bull;
+                <span class="text-danger font-bold">{{ med.exp }}</span>
+              </td>
+              <td class="font-bold">{{ med.stock }}</td>
+              <td class="text-center">
+                <span class="badge badge-danger">{{ med.daysLeft }} ngày</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

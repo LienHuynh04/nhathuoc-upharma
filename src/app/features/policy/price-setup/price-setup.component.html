@@ -1,0 +1,129 @@
+<div class="page-container">
+  <!-- PAGE HEADER & ACTIONS -->
+  <div class="page-header">
+    <div class="header-title">
+      <h2>Cài Đặt Bảng Giá Bán Thuốc (SetPriceSales)</h2>
+      <p class="subtitle">Quản lý giá vốn, giá sỉ, giá bán lẻ và tỷ suất lợi nhuận theo từng chi nhánh</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="exportExcel()">
+        <span class="material-symbols-outlined">download</span> Xuất Excel
+      </button>
+      <button class="btn btn-primary">
+        <span class="material-symbols-outlined">add</span> Thêm Giá Mới
+      </button>
+    </div>
+  </div>
+
+  <!-- FILTER TOOLBAR -->
+  <div class="filter-card">
+    <div class="filter-row">
+      <div class="filter-col">
+        <label>Nhà thuốc / Chi nhánh:</label>
+        <select [(ngModel)]="selectedShop" class="form-control">
+          <option value="CH001">Nhà thuốc UPHARMA - Chi nhánh 1</option>
+          <option value="CH002">Nhà thuốc UPHARMA - Chi nhánh 2</option>
+          <option value="CH_TONG">Kho Tổng ICPC1HN</option>
+        </select>
+      </div>
+
+      <div class="filter-col">
+        <label>Nhóm thuốc:</label>
+        <select [(ngModel)]="selectedGroup" class="form-control">
+          <option value="ALL">-- Tất cả nhóm thuốc --</option>
+          <option value="Thuốc Kháng Sinh">Thuốc Kháng Sinh</option>
+          <option value="Thuốc Giảm Đau Hạ Sốt">Thuốc Giảm Đau Hạ Sốt</option>
+          <option value="Thuốc Tiêu Hóa">Thuốc Tiêu Hóa</option>
+          <option value="Thuốc Hô Hấp">Thuốc Hô Hấp</option>
+        </select>
+      </div>
+
+      <div class="filter-col search-col">
+        <label>Tìm kiếm thuốc:</label>
+        <input type="text" [(ngModel)]="searchFilter" class="form-control" placeholder="Mã thuốc, tên biệt dược...">
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA TABLE -->
+  <div class="table-card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 40px">#</th>
+          <th>Mã thuốc</th>
+          <th>Tên thuốc / Biệt dược</th>
+          <th>Nhóm thuốc</th>
+          <th>ĐVT</th>
+          <th class="text-right">Giá vốn</th>
+          <th class="text-right">Giá bán buôn</th>
+          <th class="text-right">Giá bán lẻ</th>
+          <th class="text-center">% Lợi nhuận</th>
+          <th class="text-center">Ngày áp dụng</th>
+          <th class="text-center">Trạng thái</th>
+          <th style="width: 80px" class="text-center">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of filteredPrices(); track item.id; let idx = $index) {
+          <tr>
+            <td class="text-muted">{{ idx + 1 }}</td>
+            <td class="font-mono text-primary font-bold">{{ item.productCode }}</td>
+            <td class="font-bold">{{ item.productName }}</td>
+            <td><span class="badge badge-warning">{{ item.groupName }}</span></td>
+            <td>{{ item.unit }}</td>
+            <td class="text-right font-mono">{{ item.costPrice | number }} đ</td>
+            <td class="text-right font-mono">{{ item.wholesalePrice | number }} đ</td>
+            <td class="text-right font-mono font-bold text-success">{{ item.retailPrice | number }} đ</td>
+            <td class="text-center font-bold text-primary">{{ item.marginPercent }}%</td>
+            <td class="text-center text-muted">{{ item.effectiveDate }}</td>
+            <td class="text-center">
+              <span class="badge badge-success">Đang áp dụng</span>
+            </td>
+            <td class="text-center">
+              <button class="btn btn-outline btn-sm" (click)="startEdit(item)" title="Sửa giá">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- EDIT MODAL -->
+  @if (editingItem) {
+    <div class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Điều Chỉnh Giá Bán: {{ editingItem.productName }}</h3>
+          <button class="btn-close" (click)="cancelEdit()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Giá vốn (nhập):</label>
+              <input type="number" [(ngModel)]="editingItem.costPrice" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>Giá bán buôn:</label>
+              <input type="number" [(ngModel)]="editingItem.wholesalePrice" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>Giá bán lẻ tại quầy:</label>
+              <input type="number" [(ngModel)]="editingItem.retailPrice" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>% Lợi nhuận định mức:</label>
+              <input type="number" [(ngModel)]="editingItem.marginPercent" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" (click)="cancelEdit()">Hủy bỏ</button>
+          <button class="btn btn-primary" (click)="saveEdit()">Lưu Thay Đổi</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

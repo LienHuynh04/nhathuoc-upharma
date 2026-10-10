@@ -1,0 +1,93 @@
+<div class="login-wrapper">
+  <!-- Windows DevExpress Form Window -->
+  <div class="devexpress-window">
+    <!-- Top Blue Title Bar -->
+    <div class="window-titlebar">
+      <div class="brand-left">
+        <div class="logo-box">
+          <!-- Capsule logo (orange/green pill) -->
+          <div class="capsule-icon">
+            <span class="capsule-top"></span>
+            <span class="capsule-bottom"></span>
+          </div>
+        </div>
+        <span class="app-title">UPHARMA</span>
+      </div>
+
+      <div class="window-controls">
+        <button type="button" class="ctrl-btn" title="Minimize">&#8212;</button>
+        <button type="button" class="ctrl-btn" title="Maximize">&#9633;</button>
+        <button type="button" class="ctrl-btn close-btn" title="Close" (click)="onExit()">&#10005;</button>
+      </div>
+    </div>
+
+    <!-- Window Body -->
+    <div class="window-body">
+      <h2 class="dialog-heading">Nhập thông tin tài khoản và mật khẩu</h2>
+
+      <!-- Error notification banner if any -->
+      @if (errorMessage()) {
+        <div class="error-banner">
+          <span class="error-icon">&#9888;</span>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <form (ngSubmit)="onSubmit()" class="login-fields">
+        <div class="field-row">
+          <label class="field-label" for="username">Tài khoản</label>
+          <div class="input-container">
+            <input
+              type="text"
+              id="username"
+              name="username"
+              [(ngModel)]="username"
+              required
+              class="dx-text-input"
+              autocomplete="username"
+            />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label class="field-label" for="password">Mật khẩu</label>
+          <div class="input-container">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              [(ngModel)]="password"
+              required
+              class="dx-text-input"
+              autocomplete="current-password"
+            />
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button type="submit" class="dx-button primary-btn" [disabled]="isLoading()">
+            @if (isLoading()) {
+              <span>Đang kết nối...</span>
+            } @else {
+              <span>Đăng nhập</span>
+            }
+          </button>
+
+          <button type="button" class="dx-button cancel-btn" (click)="onExit()">
+            <span>Thoát</span>
+          </button>
+        </div>
+      </form>
+
+      <div class="window-bottom-links">
+        <a href="javascript:void(0)" (click)="changePassword()" class="link-item">Đổi mật khẩu</a>
+        <span class="link-item version-tag">v3.8.9</span>
+      </div>
+    </div>
+
+    <!-- Bottom Copyright Footer Bar -->
+    <div class="window-footer">
+      <span>Copyright @2020 - Một sản phẩm của phòng IT - uPharma</span>
+    </div>
+  </div>
+</div>

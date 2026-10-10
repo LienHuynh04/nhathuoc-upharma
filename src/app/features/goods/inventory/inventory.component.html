@@ -1,0 +1,235 @@
+<div class="inventory-view">
+  <!-- 1. TOP BLUE RIBBON TOOLBAR (MATCHING SCREENSHOT 2) -->
+  <div class="inventory-ribbon">
+    <div class="ribbon-actions-left">
+      <button class="ribbon-btn" (click)="exportExcel()">
+        <span class="material-symbols-outlined btn-icon">ios_share</span>
+        <span class="btn-text">Xuất Excel</span>
+      </button>
+
+      <button class="ribbon-btn" (click)="reprintStamp()">
+        <span class="material-symbols-outlined btn-icon">print</span>
+        <span class="btn-text">In lại tem</span>
+      </button>
+    </div>
+
+    <div class="ribbon-actions-right">
+      <button class="ribbon-btn" (click)="exportExist()">
+        <span class="material-symbols-outlined btn-icon">description</span>
+        <span class="btn-text">Tồn kho toàn quốc</span>
+      </button>
+
+      <button class="ribbon-btn" (click)="reportDoc()">
+        <span class="material-symbols-outlined btn-icon">table_chart</span>
+        <span class="btn-text">Báo cáo thẻ kho</span>
+      </button>
+
+      <button class="ribbon-btn" (click)="exportExcel()">
+        <span class="material-symbols-outlined btn-icon">download</span>
+        <span class="btn-text">Xuất tồn kho</span>
+      </button>
+
+      <button class="ribbon-btn reload-btn" (click)="reload()" [disabled]="isLoading()">
+        <span class="material-symbols-outlined btn-icon sync-icon" [class.spinning]="isLoading()">sync</span>
+        <span class="btn-text">{{ isLoading() ? 'Đang tải...' : 'Tải lại' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. FILTER ROW (MATCHING SCREENSHOT 2) -->
+  <div class="inventory-filter-bar">
+    <div class="filter-left">
+      <div class="date-group">
+        <label>Từ ngày</label>
+        <div class="input-with-cal">
+          <input type="date" [(ngModel)]="startDate" (change)="reload()" [disabled]="isLoading()" class="dx-filter-input" />
+        </div>
+      </div>
+
+      <div class="date-group">
+        <label>Đến ngày</label>
+        <div class="input-with-cal">
+          <input type="date" [(ngModel)]="endDate" (change)="reload()" [disabled]="isLoading()" class="dx-filter-input" />
+        </div>
+      </div>
+
+      <label class="history-checkbox">
+        <input type="checkbox" [(ngModel)]="isViewHistory" (change)="reload()" [disabled]="isLoading()" />
+        <span>Xem lịch sử</span>
+      </label>
+    </div>
+
+    <div class="filter-right">
+      <label>Chi nhánh</label>
+      <select [(ngModel)]="selectedBranch" (change)="reload()" [disabled]="isLoading()" class="dx-branch-select" autofocus>
+        @for (s of authService.shopList(); track s.ShopCode) {
+          <option [value]="s.ShopCode">{{ s.ShopName }}</option>
+        }
+      </select>
+      @if (noPermission()) {
+        <span class="ribbon-perm-badge">
+          <span class="material-symbols-outlined badge-icon">lock</span>
+          <span>Không có quyền</span>
+        </span>
+      }
+    </div>
+  </div>
+
+  <!-- No Permission Warning Banner -->
+  @if (noPermission()) {
+    <div class="no-permission-banner">
+      <div class="perm-banner-icon">
+        <span class="material-symbols-outlined icon">lock_person</span>
+      </div>
+      <div class="perm-banner-content">
+        <div class="perm-badge-row">
+          <span class="badge-lock">KHÔNG CÓ QUYỀN TRUY CẬP</span>
+          <span class="badge-code">RespCode: 202</span>
+        </div>
+        <div class="perm-message-text">
+          Máy chủ phản hồi: <strong>"{{ noPermissionMessage() || 'Không có quyền' }}"</strong>
+        </div>
+        <div class="perm-hint-text">
+          Tài khoản hiện tại chưa được phân quyền xem tồn kho hệ thống trên uPharma.
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- 3. SPLIT 2-COLUMN GRIDS (MATCHING SCREENSHOT 2) -->
+  <div class="inventory-split-content">
+    <!-- LEFT PANEL: DANH SÁCH TỒN TEM -->
+    <div class="pane left-pane">
+      <div class="pane-header">
+        <h3 class="pane-title">Danh sách tồn tem</h3>
+      </div>
+
+      <!-- DevExpress Search Bar with Find / Clear -->
+      <div class="pane-search-row">
+        <div class="search-input-wrapper">
+          <input
+            type="text"
+            [(ngModel)]="stampSearch"
+            placeholder="Nhập từ khóa tìm kiếm"
+            class="dx-search-input"
+          />
+          <span class="material-symbols-outlined arrow-down">arrow_drop_down</span>
+        </div>
+        <button class="dx-btn find-btn" (click)="filteredStamps()">Find</button>
+        <button class="dx-btn clear-btn" (click)="clearStampSearch()">Clear</button>
+      </div>
+
+      <!-- Left Table Grid -->
+      <div class="grid-table-container">
+        <table class="dx-table">
+          <thead>
+            <tr>
+              <th class="stt-col">STT</th>
+              <th style="width: 100px;">Mã sản phẩm</th>
+              <th style="width: 220px;">Tên sản phẩm</th>
+              <th style="width: 100px;">Mã lô nhảy</th>
+              <th style="width: 70px;" class="text-right">Tồn</th>
+              <th style="width: 80px;" class="text-right">Số lượng</th>
+              <th style="width: 90px;" class="text-right">Giá bán</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (noPermission()) {
+              <tr class="empty-row no-permission-row">
+                <td colspan="7" class="text-center">
+                  <div class="no-permission-state">
+                    <span class="material-symbols-outlined lock-big-icon">lock</span>
+                    <h4 class="no-perm-title">Không có quyền</h4>
+                    <span class="no-perm-badge">Mã 202: {{ noPermissionMessage() || 'Không có quyền' }}</span>
+                  </div>
+                </td>
+              </tr>
+            } @else {
+              @for (item of filteredStamps(); track $index) {
+                <tr [class.even-row]="$index % 2 === 1">
+                  <td class="stt-col text-center">{{ $index + 1 }}</td>
+                  <td>{{ item.ProductID }}</td>
+                  <td class="bold-text">{{ item.ProductName }}</td>
+                  <td>{{ item.LotIndex }}</td>
+                  <td class="text-right">{{ item.QuantityE | number:'1.0-0' }}</td>
+                  <td class="text-right">{{ item.Quantity | number:'1.0-0' }}</td>
+                  <td class="text-right highlight-price">{{ item.UnitPrice | number:'1.0-0' }}</td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: DANH SÁCH SẢN PHẨM TỒN KHO -->
+    <div class="pane right-pane">
+      <div class="pane-header">
+        <h3 class="pane-title">Danh sách sản phẩm tồn kho</h3>
+      </div>
+
+      <!-- DevExpress Search Bar with Find / Clear -->
+      <div class="pane-search-row">
+        <div class="search-input-wrapper">
+          <input
+            type="text"
+            [(ngModel)]="inventorySearch"
+            placeholder="Nhập từ khóa tìm kiếm"
+            class="dx-search-input"
+          />
+          <span class="material-symbols-outlined arrow-down">arrow_drop_down</span>
+        </div>
+        <button class="dx-btn find-btn" (click)="filteredInventories()">Find</button>
+        <button class="dx-btn clear-btn" (click)="clearInventorySearch()">Clear</button>
+      </div>
+
+      <!-- Right Table Grid -->
+      <div class="grid-table-container">
+        <table class="dx-table">
+          <thead>
+            <tr>
+              <th class="stt-col">STT</th>
+              <th style="width: 95px;">Mã sản phẩm</th>
+              <th style="width: 200px;">Tên sản phẩm</th>
+              <th style="width: 95px;" class="text-center">Ngày sản xuất</th>
+              <th style="width: 95px;" class="text-center">Ngày hết hạn</th>
+              <th style="width: 65px;" class="text-center">Đơn vị</th>
+              <th style="width: 85px;">Mã lô</th>
+              <th style="width: 70px;" class="text-right">Số lượng</th>
+              <th style="width: 70px;" class="text-right">SL thực</th>
+              <th style="width: 70px;" class="text-right">SL điều</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (noPermission()) {
+              <tr class="empty-row no-permission-row">
+                <td colspan="10" class="text-center">
+                  <div class="no-permission-state">
+                    <span class="material-symbols-outlined lock-big-icon">lock</span>
+                    <h4 class="no-perm-title">Không có quyền</h4>
+                    <span class="no-perm-badge">Mã 202: {{ noPermissionMessage() || 'Không có quyền' }}</span>
+                  </div>
+                </td>
+              </tr>
+            } @else {
+              @for (item of filteredInventories(); track $index) {
+                <tr [class.even-row]="$index % 2 === 1">
+                  <td class="stt-col text-center">{{ $index + 1 }}</td>
+                  <td>{{ item.ProductID }}</td>
+                  <td class="bold-text">{{ item.ProductName }}</td>
+                  <td class="text-center">{{ item.ProductionDateD }}</td>
+                  <td class="text-center text-exp">{{ item.ExpirationDateD }}</td>
+                  <td class="text-center">{{ item.UnitOfMeasure }}</td>
+                  <td>{{ item.LotCode }}</td>
+                  <td class="text-right">{{ item.Quantity | number:'1.0-0' }}</td>
+                  <td class="text-right">{{ item.QuantityE | number:'1.0-0' }}</td>
+                  <td class="text-right">{{ item.QuantityT | number:'1.0-0' }}</td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

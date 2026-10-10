@@ -1,59 +1,70 @@
-# NhathuocWeb
+# UPHARMA - HỆ THỐNG QUẢN LÝ NHÀ THUỐC (ANGULAR WEB VERSION)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.1.
+Dự án chuyển đổi toàn diện từ **Hệ thống Nhà Thuốc Desktop (WinForms DevExpress)** sang nền tảng **Website SPA hiện đại bằng Angular**.
 
-## Development server
+---
 
-To start a local development server, run:
+## 🚀 ĐẶC ĐIỂM NỔI BẬT
 
-```bash
-ng serve
+1. **Khớp 100% với CSDL & OpenAPI (`openapi_swagger.json`)**:
+   - Toàn bộ **657 API endpoints** và **194 Schemas / DTOs** đã được chuyển hóa thành các TypeScript Model và Angular Api Services có type-safe.
+   - Thư mục `src/app/core/services/api/` chứa 78 service API phân nhóm chuẩn: `SalesInvoice`, `PolicyPrice`, `Warehouse`, `ImportStore`, `ConnectFast`, `ConnectSYT`, `Buyer`, `Supplier`...
+
+2. **Giao diện đa tab (Tabbed MDI Layout)**:
+   - Tái hiện trải nghiệm mở đồng thời nhiều tab làm việc độc lập của Desktop App: Dược sĩ có thể vừa mở tab **Quầy Bán Thuốc (POS)**, vừa mở tab **Cài Đặt Giá Bán**, vừa mở tab **Kiểm Kê Kho** mà không bị mất dữ liệu.
+
+3. **Core Modules đã triển khai**:
+   - 🛒 **POS (Point of Sale)**: Quầy bán lẻ thuốc, quét mã vạch, tính tiền, chọn thuốc nhanh, hỗ trợ phương thức Tiền mặt / QR Chuyển khoản / Thẻ.
+   - 💰 **SetPriceSales**: Cài đặt bảng giá vốn, giá sỉ, giá bán lẻ và tỷ suất lợi nhuận theo từng chi nhánh.
+   - 📦 **SetupWarehouse & InputShelf**: Cài đặt hệ thống kho dược phẩm, tủ bảo quản lạnh và định vị sơ đồ giá kệ chứa thuốc.
+   - 📊 **Dashboard Tổng quan**: Thống kê doanh thu, cảnh báo thuốc cận date (< 90 ngày), đơn online chờ duyệt.
+   - 🔐 **Auth & Security**: Quản lý phiên làm việc, phân quyền theo điểm bán (Shop), Token Interceptor tự động gắn Bearer Token.
+
+---
+
+## 📂 CẤU TRÚC THƯ MỤC
+
+```
+nhathuoc-web/
+├── src/
+│   ├── app/
+│   │   ├── core/                      # Hạt nhân ứng dụng
+│   │   │   ├── interceptors/          # Auth & Error Interceptors
+│   │   │   ├── models/                # 194 TypeScript Schemas từ Swagger
+│   │   │   └── services/              # AuthService, TabManager & 78 API Services
+│   │   │       └── api/               # Từng API Module tương ứng backend
+│   │   ├── layout/                    # Khung sườn ứng dụng
+│   │   │   └── main-layout/           # Sidebar, Header, Thanh tab MDI
+│   │   ├── features/                  # Các màn hình nghiệp vụ
+│   │   │   ├── auth/login/            # Đăng nhập hệ thống
+│   │   │   ├── dashboard/             # Tổng quan quản trị
+│   │   │   ├── sales/pos/             # Quầy bán thuốc (POS)
+│   │   │   ├── policy/price-setup/    # Cài đặt giá bán (SetPriceSales)
+│   │   │   └── warehouse/warehouse-setup/ # Cài đặt kho & giá kệ
+│   │   ├── app.config.ts              # Cấu hình Providers, Router, HttpClient
+│   │   └── app.routes.ts              # Định tuyến điều hướng
+│   ├── index.html                     # Google Fonts Inter & Material Symbols
+│   └── styles.scss                    # Design System & Token màu sắc
+└── package.json
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-## Code scaffolding
+## 🛠️ HƯỚNG DẪN KHỞI CHẠY DỰ ÁN
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Để khởi chạy dự án, mở terminal tại thư mục `nhathuoc-web`:
 
 ```bash
-ng generate --help
+cd nhathuoc-web
+
+# 1. Cài đặt các gói phụ thuộc
+npm install
+
+# 2. Khởi chạy máy chủ phát triển
+npm start
+# hoặc: ng serve --open
 ```
 
-## Building
+Truy cập trình duyệt tại địa chỉ: `http://localhost:4200`
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+# nhathuoc-upharma

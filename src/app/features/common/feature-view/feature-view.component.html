@@ -1,0 +1,236 @@
+<div class="feature-container">
+  <!-- DevExpress Ribbon Header Toolbar -->
+  <div class="ribbon-bar">
+    <div class="ribbon-group">
+      <button class="ribbon-btn" (click)="exportExcel()">
+        <span class="material-symbols-outlined icon">ios_share</span>
+        <span class="label">Xuất file Excel</span>
+      </button>
+
+      <button class="ribbon-btn" (click)="reload()" [disabled]="isLoading()">
+        <span class="material-symbols-outlined icon" [class.spinning]="isLoading()">sync</span>
+        <span class="label">{{ isLoading() ? 'Đang tải...' : 'Tải lại' }}</span>
+      </button>
+
+      <div class="separator"></div>
+
+      <button class="ribbon-btn">
+        <span class="material-symbols-outlined icon">add_circle</span>
+        <span class="label">Thêm mới</span>
+      </button>
+
+      <button class="ribbon-btn">
+        <span class="material-symbols-outlined icon">edit_document</span>
+        <span class="label">Chỉnh sửa</span>
+      </button>
+
+      <button class="ribbon-btn">
+        <span class="material-symbols-outlined icon">delete</span>
+        <span class="label">Xóa bỏ</span>
+      </button>
+
+      <div class="separator"></div>
+
+      <button class="ribbon-btn">
+        <span class="material-symbols-outlined icon">print</span>
+        <span class="label">In phiếu</span>
+      </button>
+    </div>
+
+    <!-- Right Side Title / Status -->
+    <div class="ribbon-title">
+      <span class="material-symbols-outlined module-icon">{{ currentConfig()?.icon || 'grid_view' }}</span>
+      <span class="title-text">{{ currentConfig()?.title }}</span>
+      @if (noPermission()) {
+        <span class="ribbon-perm-badge">
+          <span class="material-symbols-outlined badge-icon">lock</span>
+          <span>Không có quyền</span>
+        </span>
+      }
+    </div>
+  </div>
+
+  <!-- Filter & Search Panel -->
+  <div class="filter-panel">
+    @if (currentConfig()?.shopFilter) {
+      <div class="filter-item">
+        <label>Điểm bán / Shop:</label>
+        <select [(ngModel)]="selectedShop" (change)="reload()" [disabled]="isLoading()" class="dx-select" autofocus>
+          @for (s of authService.shopList(); track s.ShopCode) {
+            <option [value]="s.ShopCode">{{ s.ShopName }}</option>
+          }
+        </select>
+      </div>
+    }
+
+    @if (currentConfig()?.typeDocFilter) {
+      <div class="filter-item">
+        <label>Chọn loại:</label>
+        <select [(ngModel)]="selectedTypeDoc" (change)="reload()" [disabled]="isLoading()" class="dx-select">
+          <option [ngValue]="0">Hàng hết</option>
+          <option [ngValue]="1">Hàng chia</option>
+          <option [ngValue]="2">Hàng giao tại điểm</option>
+        </select>
+      </div>
+    }
+
+    @if (currentConfig()?.dateFilter) {
+      <div class="filter-item">
+        <label>Từ ngày:</label>
+        <input type="date" [(ngModel)]="startDate" (change)="reload()" class="dx-date" />
+      </div>
+
+      <div class="filter-item">
+        <label>Đến ngày:</label>
+        <input type="date" [(ngModel)]="endDate" (change)="reload()" class="dx-date" />
+      </div>
+    }
+
+    <div class="search-box">
+      <span class="material-symbols-outlined search-icon">search</span>
+      <input
+        type="text"
+        [(ngModel)]="searchKeyword"
+        (keyup.enter)="reload()"
+        placeholder="Nhập từ khóa tìm kiếm và nhấn Enter..."
+        class="search-input"
+      />
+    </div>
+
+    <button class="btn-filter" (click)="reload()">
+      <span class="material-symbols-outlined">filter_alt</span>
+      <span>Lọc dữ liệu</span>
+    </button>
+  </div>
+
+  <!-- No Permission Warning Banner -->
+  @if (noPermission()) {
+    <div class="no-permission-banner">
+      <div class="perm-banner-icon">
+        <span class="material-symbols-outlined icon">lock_person</span>
+      </div>
+      <div class="perm-banner-content">
+        <div class="perm-badge-row">
+          <span class="badge-lock">KHÔNG CÓ QUYỀN TRUY CẬP</span>
+          <span class="badge-code">RespCode: 202</span>
+        </div>
+        <div class="perm-message-text">
+          Máy chủ phản hồi: <strong>"{{ noPermissionMessage() || 'Không có quyền' }}"</strong>
+        </div>
+        <div class="perm-hint-text">
+          Tài khoản hiện tại của bạn chưa được phân quyền truy cập chức năng <strong>{{ currentConfig()?.title }}</strong> trên hệ thống uPharma. Vui lòng liên hệ quản trị viên để được cấp quyền.
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Error Message Alert -->
+  @if (errorMessage()) {
+    <div class="auth-warning-banner">
+      <span class="material-symbols-outlined warning-icon">warning</span>
+      <div class="warning-content">
+        <strong>Thông báo từ hệ thống:</strong>
+        <span>{{ errorMessage() }}</span>
+      </div>
+      <button class="btn-login-redirect" (click)="goToLogin()">
+        <span class="material-symbols-outlined">login</span>
+        <span>Đăng nhập ngay</span>
+      </button>
+    </div>
+  }
+
+  <!-- Main Table View -->
+  <div class="grid-wrapper">
+    <table class="dx-grid-table">
+      <thead>
+        <tr>
+          <th class="col-indicator" style="width: 44px">STT</th>
+          @for (col of currentConfig()?.columns; track col.key) {
+            <th
+              [style.width]="col.width || 'auto'"
+              [class.text-center]="col.align === 'center'"
+              [class.text-right]="col.align === 'right'"
+            >
+              <div class="th-content">
+                <span>{{ col.label }}</span>
+                <span class="material-symbols-outlined sort-icon">unfold_more</span>
+              </div>
+            </th>
+          }
+        </tr>
+      </thead>
+
+      <tbody>
+        @if (noPermission()) {
+          <tr class="empty-row no-permission-row">
+            <td [attr.colspan]="(currentConfig()?.columns?.length || 0) + 1" class="text-center">
+              <div class="no-permission-state">
+                <div class="lock-graphic">
+                  <span class="material-symbols-outlined lock-big-icon">lock</span>
+                </div>
+                <h3 class="no-perm-title">Không có quyền truy cập chức năng này</h3>
+                <div class="no-perm-chip">
+                  <span class="material-symbols-outlined chip-icon">gpp_maybe</span>
+                  <span>Mã phản hồi: 202 - {{ noPermissionMessage() || 'Không có quyền' }}</span>
+                </div>
+                <p class="no-perm-explain">
+                  Tài khoản đăng nhập của bạn không có quyền xem hoặc thao tác dữ liệu <strong>{{ currentConfig()?.title }}</strong>.
+                </p>
+                <span class="no-perm-hint">
+                  Vui lòng liên hệ quản lý hoặc bộ phận IT để được cấp quyền tương ứng trên hệ thống uPharma.
+                </span>
+              </div>
+            </td>
+          </tr>
+        } @else if (filteredData().length === 0 && !isLoading()) {
+          <tr class="empty-row">
+            <td [attr.colspan]="(currentConfig()?.columns?.length || 0) + 1" class="text-center">
+              <div class="empty-state">
+                <span class="material-symbols-outlined empty-icon">inventory_2</span>
+                <p>Không tìm thấy bản ghi nào phù hợp với điều kiện lọc.</p>
+                @if (!authService.isAuthenticated()) {
+                  <small>Gợi ý: Hãy đăng nhập bằng tài khoản để đồng bộ dữ liệu thật từ máy chủ.</small>
+                }
+              </div>
+            </td>
+          </tr>
+        } @else {
+          @for (item of filteredData(); track $index) {
+            <tr class="data-row" [class.urgent-row]="isNearExpiry(item)" [class.even-row]="$index % 2 === 1 && !isNearExpiry(item)">
+              <td class="col-indicator text-center">{{ $index + 1 }}</td>
+              @for (col of currentConfig()?.columns; track col.key) {
+                <td
+                  [class.text-center]="col.align === 'center'"
+                  [class.text-right]="col.align === 'right'"
+                >
+                  @if (col.type === 'badge') {
+                    <span class="status-badge">{{ formatStatusBadge(getCellValue(item, col)) }}</span>
+                  } @else {
+                    {{ getCellValue(item, col) ?? '—' }}
+                  }
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Status Bar Footer -->
+  <div class="grid-footer">
+    <div class="footer-left">
+      <span class="material-symbols-outlined status-dot" [class.error-dot]="noPermission()">circle</span>
+      <span>API: <code>{{ currentConfig()?.apiEndpoint }}</code></span>
+      @if (noPermission()) {
+        <span class="footer-perm-pill">
+          <span class="material-symbols-outlined">lock</span>
+          Không có quyền
+        </span>
+      }
+    </div>
+    <div class="footer-right">
+      <span>Tổng số bản ghi: <strong>{{ filteredData().length }}</strong></span>
+    </div>
+  </div>
+</div>

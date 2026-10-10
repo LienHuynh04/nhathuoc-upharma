@@ -1,0 +1,242 @@
+<div class="shop-inventory-view">
+  <!-- TOP BLUE RIBBON TOOLBAR -->
+  <div class="shop-ribbon">
+    <div class="ribbon-left">
+      <button class="ribbon-btn" (click)="exportInventory()">
+        <span class="material-symbols-outlined icon">ios_share</span>
+        <span>Xuất tồn kho</span>
+      </button>
+
+      <button class="ribbon-btn">
+        <span class="material-symbols-outlined icon">alarm</span>
+        <span>Tồn kho cận hạn</span>
+      </button>
+    </div>
+
+    <div class="ribbon-right">
+      <button class="ribbon-btn" (click)="exportStamps()">
+        <span class="material-symbols-outlined icon">ios_share</span>
+        <span>Xuất tồn tem</span>
+      </button>
+
+      <button class="ribbon-btn" (click)="reprintStamp()">
+        <span class="material-symbols-outlined icon">print</span>
+        <span>In lại tem</span>
+      </button>
+
+      <button class="ribbon-btn reload-btn" (click)="reload()" [disabled]="isLoading()">
+        <span class="material-symbols-outlined icon sync-icon">sync</span>
+        <span>{{ isLoading() ? 'Đang tải...' : 'Tải lại' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SUBHEADER FILTER BAR (MATCHING SCREENSHOT 3) -->
+  <div class="shop-filter-bar">
+    <div class="shop-selector-group">
+      <label>Chọn nhà thuốc:</label>
+      <select [(ngModel)]="selectedShop" (change)="reload()" [disabled]="isLoading()" class="dx-shop-select" autofocus>
+        @for (s of authService.shopList(); track s.ShopCode) {
+          <option [value]="s.ShopCode">{{ s.ShopName }} - {{ s.ShopCode }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="shop-summary-text">
+      Tổng giá trị tồn kho: <strong>{{ totalInventoryValue() | number:'1.0-0' }} vnđ</strong> - Số mã hàng: <strong>{{ totalProductCount() }}</strong>
+      @if (noPermission()) {
+        <span class="ribbon-perm-badge">
+          <span class="material-symbols-outlined badge-icon">lock</span>
+          <span>Không có quyền</span>
+        </span>
+      }
+    </div>
+  </div>
+
+  <!-- No Permission Warning Banner -->
+  @if (noPermission()) {
+    <div class="no-permission-banner">
+      <div class="perm-banner-icon">
+        <span class="material-symbols-outlined icon">lock_person</span>
+      </div>
+      <div class="perm-banner-content">
+        <div class="perm-badge-row">
+          <span class="badge-lock">KHÔNG CÓ QUYỀN TRUY CẬP</span>
+          <span class="badge-code">RespCode: 202</span>
+        </div>
+        <div class="perm-message-text">
+          Máy chủ phản hồi: <strong>"{{ noPermissionMessage() || 'Không có quyền' }}"</strong>
+        </div>
+        <div class="perm-hint-text">
+          Tài khoản hiện tại chưa được phân quyền xem tồn kho điểm bán trên hệ thống uPharma.
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- SPLIT 2-PANEL CONTENT -->
+  <div class="shop-split-content">
+    <!-- LEFT PANE: DANH SÁCH TỒN KHO -->
+    <div class="pane left-pane">
+      <div class="pane-header">
+        <h3 class="pane-title">Danh sách tồn kho</h3>
+      </div>
+
+      <div class="search-bar">
+        <div class="input-wrapper">
+          <input type="text" [(ngModel)]="searchInventory" placeholder="Nhập từ khóa tìm kiếm" class="dx-search-input" />
+          <span class="material-symbols-outlined arrow-icon">arrow_drop_down</span>
+        </div>
+        <button class="dx-btn" (click)="filteredInventory()">Find</button>
+        <button class="dx-btn" (click)="clearInventory()">Clear</button>
+      </div>
+
+      <div class="grid-table-container">
+        <table class="dx-table">
+          <thead>
+            <tr>
+              <th class="stt-col">STT</th>
+              <th style="width: 85px;">Hạn Sd</th>
+              <th style="width: 85px;">Mã sản phẩm</th>
+              <th style="width: 220px;">Tên sản phẩm</th>
+              <th style="width: 85px;">Mã lô</th>
+              <th style="width: 85px;" class="text-center">Ngày sản xuất</th>
+              <th style="width: 80px;" class="text-right">Giá bán</th>
+              <th style="width: 80px;" class="text-center">Mã Shop</th>
+              <th style="width: 100px;">An toàn</th>
+              <th style="width: 75px;" class="text-right">Số lượng tem</th>
+              <th style="width: 85px;" class="text-right">Giá bán tem</th>
+              <th style="width: 70px;" class="text-center">Đơn vị tem</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (noPermission()) {
+              <tr class="empty-row no-permission-row">
+                <td colspan="12" class="text-center">
+                  <div class="no-permission-state">
+                    <div class="lock-graphic">
+                      <span class="material-symbols-outlined lock-big-icon">lock</span>
+                    </div>
+                    <h3 class="no-perm-title">Không có quyền truy cập</h3>
+                    <div class="no-perm-chip">
+                      <span class="material-symbols-outlined chip-icon">gpp_maybe</span>
+                      <span>Mã phản hồi: 202 - {{ noPermissionMessage() || 'Không có quyền' }}</span>
+                    </div>
+                    <p class="no-perm-explain">
+                      Tài khoản của bạn không có quyền xem tồn kho điểm bán trên hệ thống uPharma.
+                    </p>
+                  </div>
+                </td>
+              </tr>
+            } @else {
+              @for (item of filteredInventory(); track $index) {
+                <!-- Yellow highlight for items under 90 days matching Screenshot 3 -->
+                <tr [class.urgent-row]="item.ExpiryDaysNum <= 90" [class.even-row]="$index % 2 === 1 && item.ExpiryDaysNum > 90">
+                  <td class="stt-col text-center">{{ $index + 1 }}</td>
+                  <td class="bold-text">{{ item.ExpiryDays }}</td>
+                  <td>{{ item.ProductID }}</td>
+                  <td>{{ item.ProductName }}</td>
+                  <td>{{ item.LotCode }}</td>
+                  <td class="text-center">{{ item.ProductionDate }}</td>
+                  <td class="text-right">{{ item.UnitPrice | number:'1.0-0' }}</td>
+                  <td class="text-center">{{ item.ShopCode }}</td>
+                  <td class="safety-cell">{{ item.SafetyStock }}</td>
+                  <td class="text-right">{{ item.StampQuantity }}</td>
+                  <td class="text-right bold-text">{{ item.StampPrice | number:'1.0-0' }}</td>
+                  <td class="text-center">{{ item.StampUnit }}</td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RIGHT PANE: DANH SÁCH TỒN TEM + CẢNH BÁO -->
+    <div class="pane right-pane">
+      <!-- TOP HALF: DANH SÁCH TỒN TEM -->
+      <div class="top-half">
+        <div class="pane-header">
+          <h3 class="pane-title">Danh sách tồn tem</h3>
+        </div>
+
+        <div class="search-bar">
+          <div class="input-wrapper">
+            <input type="text" [(ngModel)]="searchStamp" placeholder="Nhập từ khóa tìm kiếm" class="dx-search-input" />
+            <span class="material-symbols-outlined arrow-icon">arrow_drop_down</span>
+          </div>
+          <button class="dx-btn" (click)="filteredStamps()">Find</button>
+          <button class="dx-btn" (click)="clearStamp()">Clear</button>
+        </div>
+
+        <div class="grid-table-container">
+          <table class="dx-table">
+            <thead>
+              <tr>
+                <th class="stt-col">STT</th>
+                <th style="width: 85px;">Mã sản phẩm</th>
+                <th style="width: 200px;">Tên sản phẩm</th>
+                <th style="width: 120px;">Mã lô nhảy</th>
+                <th style="width: 75px;">Mã lô</th>
+                <th style="width: 55px;" class="text-right">Tồn</th>
+                <th style="width: 65px;" class="text-right">Số lượng</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of filteredStamps(); track $index) {
+                <tr [class.even-row]="$index % 2 === 1">
+                  <td class="stt-col text-center">{{ $index + 1 }}</td>
+                  <td>{{ item.ProductID }}</td>
+                  <td>{{ item.ProductName }}</td>
+                  <td>{{ item.LotIndex }}</td>
+                  <td>{{ item.LotCode }}</td>
+                  <td class="text-right">{{ item.Stock }}</td>
+                  <td class="text-right">{{ item.Quantity }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- BOTTOM HALF: CẢNH BÁO TABLE (MATCHING SCREENSHOT 3) -->
+      <div class="bottom-half">
+        <div class="warning-calc-bar">
+          <label>Thời điểm hết hạn</label>
+          <input type="date" [(ngModel)]="expiryCheckDate" class="dx-date-input" />
+          <button class="dx-btn calc-btn" (click)="reload()">
+            <span class="material-symbols-outlined">calculate</span>
+            <span>Tính lại</span>
+          </button>
+        </div>
+
+        <div class="pane-header warning-header">
+          <h3 class="pane-title">Cảnh báo</h3>
+        </div>
+
+        <div class="grid-table-container warning-table-box">
+          <table class="dx-table">
+            <thead>
+              <tr>
+                <th class="stt-col">STT</th>
+                <th>Nội dung</th>
+                <th style="width: 110px;" class="text-right">Giá trị</th>
+                <th style="width: 220px;">Cảnh báo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (w of warningList; track $index) {
+                <tr>
+                  <td class="stt-col text-center">{{ $index + 1 }}</td>
+                  <td class="bold-text">{{ w.Title }}</td>
+                  <td class="text-right">{{ w.Value | number:'1.0-0' }}</td>
+                  <td>Tỷ lệ {{ w.RatioPercent | number:'1.2-2' }} % so với tổng giá trị tồn</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
