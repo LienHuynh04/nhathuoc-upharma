@@ -28,6 +28,13 @@ export class TabManagerService {
       icon: 'inventory_2',
       route: '/product-list',
       closable: true
+    },
+    {
+      id: 'HH_FEFO',
+      title: 'Kiểm tra FEFO',
+      icon: 'fact_check',
+      route: '/feature/hh_fefo',
+      closable: true
     }
   ]);
 

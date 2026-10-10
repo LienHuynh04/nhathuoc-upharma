@@ -77,10 +77,24 @@
           @for (tab of tabManager.tabs(); track tab.id) {
             <div class="strip-tab"
                  [class.active]="tabManager.activeTabId() === tab.id"
-                 (click)="tabManager.selectTab(tab.id)">
-              <span class="tab-text">{{ tab.title }}</span>
+                 (click)="tabManager.selectTab(tab.id)"
+                 [title]="tab.title">
+              <!-- uPharma Logo Icon -->
+              <svg class="tab-logo-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="9.5" y="4" width="5" height="4.5" rx="2.25" fill="#d18636" />
+                <path d="M7 9.5V13C7 15.76 9.24 18 12 18C14.76 18 17 15.76 17 13V9.5" stroke="#139a44" stroke-width="2.6" stroke-linecap="round" fill="none" />
+              </svg>
+
+              <!-- Tab Title -->
+              <span class="tab-text">{{ formatTabTitle(tab.title) }}</span>
+
+              <!-- Close Button -->
               @if (tab.closable) {
-                <button class="close-x" (click)="tabManager.closeTab(tab.id, $event)">&times;</button>
+                <button class="close-x" (click)="tabManager.closeTab(tab.id, $event)" title="Đóng tab">
+                  <svg class="close-svg" viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M4 4L12 12M12 4L4 12" />
+                  </svg>
+                </button>
               }
             </div>
           }

@@ -61,6 +61,7 @@ export class MainLayoutComponent {
         { code: 'HH_7', title: '7. Chuyển về kho tổng', icon: 'move_to_inbox', iconColor: '#64748b', route: '/feature/hh_7' }
       ],
       itemsCol2: [
+        { code: 'HH_FEFO', title: 'Kiểm tra FEFO', icon: 'fact_check', iconColor: '#10b981', route: '/feature/hh_fefo' },
         { code: 'HH_9', title: '9. Tồn kho an toàn SHOP', icon: 'settings_suggest', iconColor: '#f59e0b', route: '/feature/hh_9' },
         { code: 'HH_10', title: '10. Hàng chậm bán (SHOP)', icon: 'query_builder', iconColor: '#10b981', route: '/feature/hh_10' },
         { code: 'HH_12', title: '12. Khách trả lại hàng', icon: 'business_center', iconColor: '#0284c7', route: '/feature/hh_12' },
@@ -162,6 +163,14 @@ export class MainLayoutComponent {
     const activeId = this.tabManager.activeTabId();
     const tab = this.tabManager.tabs().find(t => t.id === activeId);
     return tab ? tab.title : 'Chi tiết nghiệp vụ';
+  }
+
+  formatTabTitle(title: string): string {
+    if (!title) return 'UPHARMA';
+    if (title === 'Trang chủ') return 'Trang chủ';
+    if (title.startsWith('UPHARMA - ')) return title;
+    const cleanTitle = title.replace(/^\d+\.\s*/, '');
+    return `UPHARMA - ${cleanTitle}`;
   }
 
   logout(): void {

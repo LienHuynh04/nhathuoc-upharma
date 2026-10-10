@@ -206,76 +206,157 @@
 }
 
 .tab-strip {
-  height: 32px;
-  background-color: #e2e8f0;
+  height: 42px;
+  background-color: #1f2020;
   display: flex;
   align-items: flex-end;
-  padding: 0 0.5rem;
-  border-bottom: 1px solid #cbd5e1;
+  padding: 0 12px;
+  border-top: 1px solid #333436;
+  border-bottom: 1px solid #3c3c3c;
+  user-select: none;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 5;
 
   .tabs-list {
     display: flex;
-    gap: 2px;
+    gap: 8px;
     height: 100%;
     align-items: flex-end;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 4px;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
 
     .strip-tab {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      background-color: #cbd5e1;
-      padding: 0.25rem 0.75rem;
-      font-size: 0.75rem;
-      color: #334155;
-      border-top-left-radius: 4px;
-      border-top-right-radius: 4px;
-      border: 1px solid #94a3b8;
-      border-bottom: none;
+      gap: 8px;
+      height: 34px;
+      padding: 0 14px;
+      background-color: #27282b;
+      color: #9e9ea0;
+      font-size: 13.5px;
+      font-weight: 400;
+      letter-spacing: 0.1px;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
       cursor: pointer;
+      position: relative;
       user-select: none;
+      white-space: nowrap;
+      transition: background-color 0.15s ease, color 0.15s ease;
+
+      .tab-logo-icon {
+        flex-shrink: 0;
+        width: 17px;
+        height: 17px;
+        display: block;
+      }
+
+      .tab-text {
+        font-family: inherit;
+        font-size: 13.5px;
+        line-height: 1;
+        white-space: nowrap;
+      }
 
       .close-x {
-        background: none;
+        background: transparent;
         border: none;
+        outline: none;
         cursor: pointer;
-        font-size: 1rem;
-        color: #64748b;
-        &:hover { color: #dc2626; }
+        padding: 3px;
+        margin-left: 8px;
+        border-radius: 3px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #9e9ea0;
+        transition: all 0.15s ease;
+
+        .close-svg {
+          display: block;
+        }
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.15);
+          color: #ffffff;
+        }
+      }
+
+      &:hover:not(.active) {
+        background-color: #313336;
+        color: #d1d5db;
       }
 
       &.active {
-        background-color: #fff;
-        border-color: #0078d7;
-        color: #0078d7;
-        font-weight: 600;
-        border-bottom: 1px solid #fff;
-        margin-bottom: -1px;
+        height: 35px;
+        background-color: #3c3c3c;
+        color: #e3e3e3;
+        font-weight: 500;
         z-index: 2;
+
+        .close-x {
+          color: #e3e3e3;
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+          }
+        }
+
+        // Curved fillet at bottom-left
+        &::before {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: -8px;
+          width: 8px;
+          height: 8px;
+          background: radial-gradient(circle at 0 0, transparent 7.5px, #3c3c3c 8px);
+          pointer-events: none;
+        }
+
+        // Curved fillet at bottom-right
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          right: -8px;
+          width: 8px;
+          height: 8px;
+          background: radial-gradient(circle at 100% 0, transparent 7.5px, #3c3c3c 8px);
+          pointer-events: none;
+        }
       }
     }
   }
 }
 
 .blue-action-bar {
-  height: 42px;
-  background-color: #0078d7;
+  height: 38px;
+  background-color: #3c3c3c;
+  border-bottom: 1px solid #2d2e30;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;
-  color: #fff;
+  color: #e3e3e3;
   flex-shrink: 0;
 
   .bar-left {
     .split-win-btn {
       background: none;
       border: none;
-      color: #fff;
+      color: #e3e3e3;
       cursor: pointer;
       display: flex;
       align-items: center;
       opacity: 0.85;
-      &:hover { opacity: 1; }
+      &:hover { opacity: 1; color: #fff; }
     }
   }
 
@@ -289,7 +370,14 @@
       align-items: center;
       gap: 0.4rem;
       font-size: 0.8rem;
-      color: #fff;
+      color: #cbd5e1;
+
+      .white-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: #10b981;
+      }
     }
 
     .user-display {
@@ -297,13 +385,15 @@
       align-items: center;
       gap: 5px;
       font-size: 0.8rem;
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       padding: 3px 10px;
       border-radius: 12px;
-      color: #fff;
+      color: #e3e3e3;
 
       .user-icon {
         font-size: 16px;
+        color: #38bdf8;
       }
 
       .user-name {
@@ -312,32 +402,26 @@
     }
 
     .logout-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
       padding: 3px 10px;
-      border-radius: 3px;
+      border-radius: 4px;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 4px;
-      color: #fff;
+      color: #fca5a5;
       font-size: 0.8rem;
-      transition: all 0.15s;
+      transition: all 0.15s ease;
 
       .logout-icon {
         font-size: 15px;
       }
 
       &:hover {
-        background: rgba(255, 255, 255, 0.25);
+        background-color: #ef4444;
+        color: #ffffff;
       }
-    }
-
-    .white-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: #fff;
     }
   }
 }

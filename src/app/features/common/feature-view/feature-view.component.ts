@@ -85,6 +85,24 @@ export class FeatureViewComponent implements OnInit {
         { key: 'Status', label: 'Trạng thái', width: '110px', align: 'center', type: 'badge' }
       ]
     },
+    hh_fefo: {
+      code: 'HH_FEFO',
+      title: 'Kiểm tra FEFO',
+      apiEndpoint: '/LocalStore/GetInventoryShop',
+      apiMethod: 'POST',
+      icon: 'fact_check',
+      reqKeys: ["uPharmaID", "Token", "ShopCode", "BranchLst", "ProductID", "LotCode", "PackageID", "StoreType"],
+      arrayProp: 'LocalStoreLst',
+      shopFilter: true,
+      columns: [
+        { key: 'ProductID', label: 'Mã sản phẩm', width: '120px', align: 'left', type: 'text' },
+        { key: 'ProductName', label: 'Tên sản phẩm', width: '260px', align: 'left', type: 'text' },
+        { key: 'LotCode', label: 'Số lô', width: '110px', align: 'left', type: 'text' },
+        { key: 'ExpirationDay', label: 'Hạn dùng (FEFO)', width: '120px', align: 'center', type: 'text', fallbackKeys: ['ExpirationDate', 'ExpDay'] },
+        { key: 'Quantity', label: 'Tồn kho', width: '100px', align: 'right', type: 'number' },
+        { key: 'UnitOfMeasure', label: 'ĐVT', width: '90px', align: 'left', type: 'text' }
+      ]
+    },
     hh_4: {
       code: 'HH_4',
       title: '4. Tồn kho hệ thống',
