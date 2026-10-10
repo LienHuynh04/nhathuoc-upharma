@@ -59,13 +59,58 @@
       </label>
     </div>
 
-    <div class="filter-right">
+    <div class="filter-right" (click)="$event.stopPropagation()">
       <label>Chi nhánh</label>
-      <select [(ngModel)]="selectedBranch" (change)="reload()" [disabled]="isLoading()" class="dx-branch-select" autofocus>
-        @for (s of authService.shopList(); track s.ShopCode) {
-          <option [value]="s.ShopCode">{{ s.ShopName }}</option>
+      <div class="dx-checked-combobox" [class.open]="isBranchDropdownOpen()">
+        <!-- Trigger Display Box -->
+        <div class="combobox-trigger" (click)="toggleBranchDropdown($event)" title="Chọn chi nhánh">
+          <div class="combobox-text-box">
+            <span class="combobox-text">{{ getSelectedBranchText() }}</span>
+          </div>
+          <button type="button" class="combobox-arrow-btn" tabindex="-1">
+            <span class="dx-arrow-down"></span>
+          </button>
+        </div>
+
+        <!-- Popup Dropdown matching Screenshot 2 -->
+        @if (isBranchDropdownOpen()) {
+          <div class="combobox-popup" (click)="$event.stopPropagation()">
+            <div class="popup-item-list">
+              <!-- (Select All) Checkbox -->
+              <label class="popup-item select-all-item" [class.focused]="isAllBranchesSelected()">
+                <input
+                  type="checkbox"
+                  class="dx-checkbox"
+                  [checked]="isAllBranchesSelected()"
+                  (change)="toggleSelectAll($any($event.target).checked)"
+                />
+                <span class="item-label">(Select All)</span>
+              </label>
+
+              <!-- Individual Branches (Hà Nội, Hồ Chí Minh, Đà Nẵng, Nghệ An, TM Điện tử) -->
+              @for (b of tempBranches; track b.code; let idx = $index) {
+                <label class="popup-item">
+                  <input
+                    type="checkbox"
+                    class="dx-checkbox"
+                    [checked]="b.selected"
+                    (change)="toggleBranch(idx)"
+                  />
+                  <span class="item-label">{{ b.name }}</span>
+                </label>
+              }
+            </div>
+
+            <!-- Popup Actions Footer (OK, Cancel, Resize Grip) -->
+            <div class="popup-actions">
+              <button type="button" class="dx-popup-btn ok-btn" (click)="confirmBranchSelection()">OK</button>
+              <button type="button" class="dx-popup-btn cancel-btn" (click)="cancelBranchSelection()">Cancel</button>
+              <div class="resize-grip"></div>
+            </div>
+          </div>
         }
-      </select>
+      </div>
+
       @if (noPermission()) {
         <span class="ribbon-perm-badge">
           <span class="material-symbols-outlined badge-icon">lock</span>

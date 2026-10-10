@@ -111,23 +111,180 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    position: relative;
 
     label {
       color: #444444;
+      font-size: 12px;
     }
 
-    .dx-branch-select {
-      height: 24px;
-      min-width: 260px;
-      padding: 1px 6px;
-      border: 1px solid #abadb3;
-      border-radius: 2px;
-      font-size: 12px;
-      background: #ffffff;
-      outline: none;
+    .dx-checked-combobox {
+      position: relative;
+      user-select: none;
 
-      &:focus {
+      .combobox-trigger {
+        display: flex;
+        align-items: center;
+        height: 22px;
+        min-width: 250px;
+        max-width: 320px;
+        background: #ffffff;
+        border: 1px solid #7f9db9;
+        border-radius: 0;
+        cursor: pointer;
+        box-sizing: border-box;
+
+        &:hover {
+          border-color: #0078d7;
+        }
+
+        .combobox-text-box {
+          flex: 1;
+          padding: 0 6px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          font-size: 12px;
+          color: #000000;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
+        }
+
+        .combobox-arrow-btn {
+          width: 17px;
+          height: 100%;
+          border: none;
+          border-left: 1px solid #abadb3;
+          background: #e1e1e1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+          cursor: pointer;
+
+          &:hover {
+            background: #e5f1fb;
+          }
+
+          .dx-arrow-down {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4.5px solid #000000;
+          }
+        }
+      }
+
+      &.open .combobox-trigger {
         border-color: #0078d7;
+      }
+
+      /* DevExpress Popup Window (matching Screenshot 2) */
+      .combobox-popup {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 240px;
+        background: #ffffff;
+        border: 1px solid #000000;
+        box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.25);
+        z-index: 9999;
+        margin-top: 1px;
+        box-sizing: border-box;
+
+        .popup-item-list {
+          padding: 2px 0;
+          max-height: 240px;
+          overflow-y: auto;
+          background: #ffffff;
+
+          .popup-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 8px;
+            font-size: 12px;
+            color: #000000;
+            cursor: pointer;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
+
+            &:hover {
+              background: #e5f1fb;
+            }
+
+            &.select-all-item {
+              border-bottom: 1px solid #e0e0e0;
+              margin-bottom: 2px;
+              padding-bottom: 4px;
+
+              &.focused {
+                outline: 1px dotted #000000;
+                outline-offset: -2px;
+              }
+            }
+
+            .dx-checkbox {
+              width: 13px;
+              height: 13px;
+              margin: 0;
+              cursor: pointer;
+              accent-color: #0078d7;
+            }
+
+            .item-label {
+              font-size: 12px;
+              color: #000000;
+            }
+          }
+        }
+
+        /* Popup Actions Footer (OK, Cancel, Grip) */
+        .popup-actions {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          gap: 6px;
+          padding: 6px 12px 6px 8px;
+          background: #f0f0f0;
+          border-top: 1px solid #dcdfe4;
+          position: relative;
+
+          .dx-popup-btn {
+            min-width: 62px;
+            height: 22px;
+            border: 1px solid #707070;
+            background: #e1e1e1;
+            color: #000000;
+            font-size: 12px;
+            border-radius: 0;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: inherit;
+
+            &:hover {
+              background: #e5f1fb;
+              border-color: #0078d7;
+            }
+
+            &:active {
+              background: #cce4f7;
+            }
+          }
+
+          .resize-grip {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 8px;
+            height: 8px;
+            background-image: radial-gradient(#666 1px, transparent 1px);
+            background-size: 3px 3px;
+            pointer-events: none;
+          }
+        }
       }
     }
   }

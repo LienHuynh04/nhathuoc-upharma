@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, HostListener, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
@@ -28,6 +28,12 @@ export interface InventoryItem {
   UnitPrice: number;
 }
 
+export interface BranchItem {
+  code: string;
+  name: string;
+  selected: boolean;
+}
+
 @Component({
   selector: 'app-inventory',
   standalone: true,
@@ -40,11 +46,22 @@ export class InventoryComponent implements OnInit {
   private excelExportService = inject(ExcelExportService);
   public authService = inject(AuthService);
 
-  // Filters matching Desktop Screenshot 2
+  // Filters matching Desktop Screenshot 1 & 2
   startDate = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString().split('T')[0];
   endDate = new Date().toISOString().split('T')[0];
   isViewHistory = false;
-  selectedBranch = 'SHOP01';
+
+  // Chi nhánh list matching uPharma CheckedComboBoxEdit (Screenshot 2)
+  branches: BranchItem[] = [
+    { code: 'HN', name: 'Hà Nội', selected: true },
+    { code: 'HCM', name: 'Hồ Chí Minh', selected: true },
+    { code: 'DN', name: 'Đà Nẵng', selected: true },
+    { code: 'NGHEAN', name: 'Nghệ An', selected: true },
+    { code: 'TMDT', name: 'TM Điện tử', selected: true }
+  ];
+
+  isBranchDropdownOpen = signal<boolean>(false);
+  tempBranches: BranchItem[] = [];
 
   // Search keywords for each panel
   stampSearch = '';
@@ -82,8 +99,63 @@ export class InventoryComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.selectedBranch = this.authService.getFirstShopCode();
     this.loadData();
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    if (this.isBranchDropdownOpen()) {
+      this.cancelBranchSelection();
+    }
+  }
+
+  toggleBranchDropdown(event?: Event): void {
+    if (event) event.stopPropagation();
+    if (this.isBranchDropdownOpen()) {
+      this.cancelBranchSelection();
+    } else {
+      this.openBranchDropdown();
+    }
+  }
+
+  openBranchDropdown(): void {
+    this.tempBranches = this.branches.map(b => ({ ...b }));
+    this.isBranchDropdownOpen.set(true);
+  }
+
+  confirmBranchSelection(): void {
+    this.branches = this.tempBranches.map(b => ({ ...b }));
+    this.isBranchDropdownOpen.set(false);
+    this.reload();
+  }
+
+  cancelBranchSelection(): void {
+    this.isBranchDropdownOpen.set(false);
+  }
+
+  toggleBranch(index: number): void {
+    if (this.tempBranches[index]) {
+      this.tempBranches[index].selected = !this.tempBranches[index].selected;
+    }
+  }
+
+  toggleSelectAll(checked: boolean): void {
+    this.tempBranches.forEach(b => b.selected = checked);
+  }
+
+  isAllBranchesSelected(): boolean {
+    return this.tempBranches.length > 0 && this.tempBranches.every(b => b.selected);
+  }
+
+  getSelectedBranchCodes(): string {
+    return this.branches.filter(b => b.selected).map(b => b.code).join(',');
+  }
+
+  getSelectedBranchText(): string {
+    const selected = this.branches.filter(b => b.selected);
+    if (selected.length === 0) return '';
+    if (selected.length === this.branches.length) return '(Select All)';
+    return selected.map(b => b.name).join(', ');
   }
 
   loadData(): void {
@@ -93,84 +165,103 @@ export class InventoryComponent implements OnInit {
     this.noPermission.set(false);
     this.noPermissionMessage.set(null);
 
-    const payload: Models.NTGetInventorySystemReq = {
-      Token: this.authService.getToken() || '',
-      uPharmaID: Number(this.authService.getUPharmaID()) || 841,
-      ShopCode: 'System',
-      BranchLst: '',
-      ProductID: this.stampSearch.trim() || '',
-      LotCode: '',
-      StoreType: ''
-    };
+    const branchLst = this.getSelectedBranchCodes();
 
-    // Call API /LocalStore/GetInventorySystem
-    this.localStoreApi.getInventorySystem(payload).subscribe({
-      next: (res: any) => {
-        this.isLoading.set(false);
-        if (res && res.RespCode === -1 && (res.RespText === 'Token không hợp lệ' || String(res.RespText).toLowerCase().includes('token không hợp lệ'))) {
-          this.authService.logout();
-          return;
-        }
+    if (this.isViewHistory) {
+      // Khi chọn Xem lịch sử, gọi /LocalStore/GetLocalStoreLst theo thời gian & chi nhánh
+      const historyPayload: Models.NTGetLocalStoreLstReq = {
+        Token: this.authService.getToken() || '',
+        uPharmaID: Number(this.authService.getUPharmaID()) || 841,
+        ShopCode: 'System',
+        BranchLst: branchLst,
+        TimeStart: `${this.startDate} 00:00:00`,
+        TimeEnd: `${this.endDate} 23:59:59`
+      };
 
-        // Kiểm tra phân quyền: RespCode = 202 hoặc thông báo "Không có quyền"
-        if (res && (res.RespCode === 202 || String(res.RespText || '').toLowerCase().includes('không có quyền'))) {
-          this.noPermission.set(true);
-          this.noPermissionMessage.set(res.RespText || 'Không có quyền');
-          this.stampList.set([]);
-          this.inventoryList.set([]);
-          return;
-        }
+      this.localStoreApi.getLocalStoreLst(historyPayload).subscribe({
+        next: (res: any) => this.processInventoryResponse(res),
+        error: (err: any) => this.processInventoryError(err)
+      });
+    } else {
+      // Tồn kho hệ thống hiện tại qua /LocalStore/GetInventorySystem theo Chi nhánh
+      const payload: Models.NTGetInventorySystemReq = {
+        Token: this.authService.getToken() || '',
+        uPharmaID: Number(this.authService.getUPharmaID()) || 841,
+        ShopCode: 'System',
+        BranchLst: branchLst,
+        ProductID: this.stampSearch.trim() || '',
+        LotCode: '',
+        StoreType: ''
+      };
 
-        const list = res?.LocalStoreLst || res?.LocalStoreList || res?.ProductLst || res?.ProductList ||
-          (Array.isArray(res) ? res : Object.values(res || {}).find(v => Array.isArray(v) && v.length > 0)) as any[];
-        if (Array.isArray(list) && list.length > 0) {
-          // Map to Left Panel (Stamps)
-          const stamps: StampItem[] = list.map((item: any) => ({
-            ProductID: item.ProductID || item.ProductCode || '',
-            ProductName: item.ProductName || item.ItemName || '',
-            LotIndex: item.LotIndex || item.LotCodeIndex || item.LotCode || '',
-            QuantityE: item.QuantityE ?? item.Quantity ?? 0,
-            Quantity: item.Quantity ?? 0,
-            UnitPrice: item.UnitPrice || item.Price || 0
-          }));
-          this.stampList.set(stamps);
-
-          // Map to Right Panel (Inventory by lot)
-          const inventories: InventoryItem[] = list.map((item: any) => ({
-            ProductID: item.ProductID || item.ProductCode || '',
-            ProductName: item.ProductName || item.ItemName || '',
-            ProductionDateD: item.ProductionDateD || item.ProductionDate || '—',
-            ExpirationDateD: item.ExpirationDateD || item.ExpirationDate || '—',
-            UnitOfMeasure: item.UnitOfMeasure || item.Unit || 'Hộp',
-            LotCode: item.LotCode || item.LotIndex || '—',
-            Quantity: item.Quantity ?? 0,
-            QuantityE: item.QuantityE ?? item.Quantity ?? 0,
-            QuantityT: item.QuantityT ?? 0,
-            UnitPrice: item.UnitPrice || item.Price || 0
-          }));
-          this.inventoryList.set(inventories);
-        } else {
-          // Fallback to sample data if no data returned yet
-          this.stampList.set(this.demoStamps);
-          this.inventoryList.set(this.demoInventories);
-        }
-      },
-      error: (err: any) => {
-        this.isLoading.set(false);
-        if (err?.error && (err.error.RespCode === 202 || String(err.error.RespText || '').toLowerCase().includes('không có quyền'))) {
-          this.noPermission.set(true);
-          this.noPermissionMessage.set(err.error.RespText || 'Không có quyền');
-          this.stampList.set([]);
-          this.inventoryList.set([]);
-          return;
-        }
-        // Fallback to demo data
-        this.stampList.set(this.demoStamps);
-        this.inventoryList.set(this.demoInventories);
-      }
-    });
+      this.localStoreApi.getInventorySystem(payload).subscribe({
+        next: (res: any) => this.processInventoryResponse(res),
+        error: (err: any) => this.processInventoryError(err)
+      });
+    }
   }
 
+  private processInventoryResponse(res: any): void {
+    this.isLoading.set(false);
+    if (res && res.RespCode === -1 && (res.RespText === 'Token không hợp lệ' || String(res.RespText).toLowerCase().includes('token không hợp lệ'))) {
+      this.authService.logout();
+      return;
+    }
+
+    // Kiểm tra phân quyền: RespCode = 202 hoặc thông báo "Không có quyền"
+    if (res && (res.RespCode === 202 || String(res.RespText || '').toLowerCase().includes('không có quyền'))) {
+      this.noPermission.set(true);
+      this.noPermissionMessage.set(res.RespText || 'Không có quyền');
+      this.stampList.set([]);
+      this.inventoryList.set([]);
+      return;
+    }
+
+    const list = res?.LocalStoreLst || res?.LocalStoreList || res?.ProductLst || res?.ProductList ||
+      (Array.isArray(res) ? res : Object.values(res || {}).find(v => Array.isArray(v) && v.length > 0)) as any[];
+    if (Array.isArray(list) && list.length > 0) {
+      // Map to Left Panel (Stamps)
+      const stamps: StampItem[] = list.map((item: any) => ({
+        ProductID: item.ProductID || item.ProductCode || '',
+        ProductName: item.ProductName || item.ItemName || '',
+        LotIndex: item.LotIndex || item.LotCodeIndex || item.LotCode || '',
+        QuantityE: item.QuantityE ?? item.Quantity ?? 0,
+        Quantity: item.Quantity ?? 0,
+        UnitPrice: item.UnitPrice || item.Price || 0
+      }));
+      this.stampList.set(stamps);
+
+      // Map to Right Panel (Inventory by lot)
+      const inventories: InventoryItem[] = list.map((item: any) => ({
+        ProductID: item.ProductID || item.ProductCode || '',
+        ProductName: item.ProductName || item.ItemName || '',
+        ProductionDateD: item.ProductionDateD || item.ProductionDate || '—',
+        ExpirationDateD: item.ExpirationDateD || item.ExpirationDate || '—',
+        UnitOfMeasure: item.UnitOfMeasure || item.Unit || 'Hộp',
+        LotCode: item.LotCode || item.LotIndex || '—',
+        Quantity: item.Quantity ?? 0,
+        QuantityE: item.QuantityE ?? item.Quantity ?? 0,
+        QuantityT: item.QuantityT ?? 0,
+        UnitPrice: item.UnitPrice || item.Price || 0
+      }));
+      this.inventoryList.set(inventories);
+    } else {
+      // Fallback to demo data
+      this.stampList.set(this.demoStamps);
+      this.inventoryList.set(this.demoInventories);
+    }
+  }
+
+  private processInventoryError(err: any): void {
+    this.isLoading.set(false);
+    if (err?.error && (err.error.RespCode === 202 || String(err.error.RespText || '').toLowerCase().includes('không có quyền'))) {
+      this.noPermission.set(true);
+      this.noPermissionMessage.set(err.error.RespText || 'Không có quyền');
+      this.stampList.set([]);
+      this.inventoryList.set([]);
+      return;
+    }
+    // Fallback to demo data
   filteredStamps(): StampItem[] {
     if (!this.stampSearch.trim()) {
       return this.stampList();
@@ -204,6 +295,7 @@ export class InventoryComponent implements OnInit {
   }
 
   exportExcel(): void {
+    const branchSuffix = this.getSelectedBranchCodes() || 'All';
     if (this.activeTab === 'inventory') {
       const list: InventoryItem[] = this.filteredInventories();
       if (!list || list.length === 0) {
@@ -223,7 +315,7 @@ export class InventoryComponent implements OnInit {
         'SL khả dụng': i.QuantityE,
         'Đơn giá': i.UnitPrice
       }));
-      this.excelExportService.exportJsonToExcel(data, `Ton_kho_${this.selectedBranch}`, 'Tồn kho');
+      this.excelExportService.exportJsonToExcel(data, `Ton_kho_ChiNhanh_${branchSuffix}`, 'Tồn kho hệ thống');
     } else {
       const list: StampItem[] = this.filteredStamps();
       if (!list || list.length === 0) {
@@ -239,7 +331,7 @@ export class InventoryComponent implements OnInit {
         'Tổng tồn': s.Quantity,
         'Đơn giá': s.UnitPrice
       }));
-      this.excelExportService.exportJsonToExcel(data, `Ton_tem_${this.selectedBranch}`, 'Tồn tem');
+      this.excelExportService.exportJsonToExcel(data, `Ton_tem_ChiNhanh_${branchSuffix}`, 'Tồn tem');
     }
   }
 
@@ -257,7 +349,6 @@ export class InventoryComponent implements OnInit {
 
   reload(): void {
     if (this.isLoading()) return;
-    this.authService.setShopCode(this.selectedBranch);
     this.loadData();
   }
 }

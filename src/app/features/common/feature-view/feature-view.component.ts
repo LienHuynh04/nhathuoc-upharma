@@ -517,21 +517,74 @@ export class FeatureViewComponent implements OnInit {
         { key: 'UnitPrice', label: 'Giá tham chiếu', width: '130px', align: 'right', type: 'number' }
       ]
     },
-    dh_11: {
-      code: 'DH_11',
-      title: '11. Đơn điều chuyển Shop',
+    dh_9: {
+      code: 'DH_9',
+      title: '9. Gọi hàng sản phẩm mới',
+      apiEndpoint: '/OrderNew/GetOrderProductNewByTime',
+      apiMethod: 'POST',
+      icon: 'task_alt',
+      reqKeys: ["uPharmaID", "Token", "TimeStart", "TimeEnd"],
+      arrayProp: 'OrderProductNewLst',
+      dateFilter: true,
+      columns: [
+        { key: 'DocumentID', label: 'Mã đơn gọi', width: '140px', align: 'left', type: 'text', fallbackKeys: ['HeaderID', 'DocID'] },
+        { key: 'ProductID', label: 'Mã SP', width: '110px', align: 'left', type: 'text' },
+        { key: 'ProductName', label: 'Tên sản phẩm', width: '250px', align: 'left', type: 'text' },
+        { key: 'UnitOfMeasure', label: 'ĐVT', width: '70px', align: 'center', type: 'text', fallbackKeys: ['Unit'] },
+        { key: 'Quantity', label: 'SL gọi', width: '90px', align: 'right', type: 'number' },
+        { key: 'TimeCreate', label: 'Ngày tạo', width: '130px', align: 'center', type: 'date', fallbackKeys: ['OrderDateD'] },
+        { key: 'CreateName', label: 'Người tạo', width: '140px', align: 'left', type: 'text' },
+        { key: 'Note', label: 'Ghi chú', width: '200px', align: 'left', type: 'text' }
+      ]
+    },
+    dh_10: {
+      code: 'DH_10',
+      title: '10. Đơn gọi hàng 2',
       apiEndpoint: '/TransferOrder/GetTransferOrderSysByTime2',
       apiMethod: 'POST',
-      icon: 'move_down',
+      icon: 'description',
       reqKeys: ["uPharmaID", "Token", "TimeStart", "TimeEnd", "UnFinish"],
       arrayProp: 'PlanTransferOrderLst',
       dateFilter: true,
       columns: [
-        { key: 'HeaderID', label: 'Mã phiếu chuyển', width: '150px', align: 'left', type: 'text' },
-        { key: 'ShopName', label: 'Chi nhánh', width: '180px', align: 'left', type: 'text' },
-        { key: 'EmployeeName', label: 'Nhân viên lập', width: '160px', align: 'left', type: 'text' },
-        { key: 'TimeCreate', label: 'Ngày tạo', width: '130px', align: 'center', type: 'date' },
-        { key: 'Note', label: 'Ghi chú', width: '200px', align: 'left', type: 'text' }
+        { key: 'HeaderID', label: 'Mã đơn NB', width: '130px', align: 'left', type: 'text' },
+        { key: 'Center', label: 'Kho', width: '85px', align: 'left', type: 'text' },
+        { key: 'ShopName', label: 'Tên Shop', width: '170px', align: 'left', type: 'text' },
+        { key: 'OrderDateD', label: 'Ngày lên đơn', width: '130px', align: 'center', type: 'date' },
+        { key: 'ProductID', label: 'Mã SP', width: '110px', align: 'left', type: 'text' },
+        { key: 'ProductName', label: 'Tên sản phẩm', width: '250px', align: 'left', type: 'text' },
+        { key: 'UnitOfMeasure', label: 'ĐVT', width: '70px', align: 'center', type: 'text' },
+        { key: 'Quantity', label: 'SL gọi', width: '80px', align: 'right', type: 'number' },
+        { key: 'QuantityCenter', label: 'SL tồn kho', width: '90px', align: 'right', type: 'number' },
+        { key: 'QuantityShop', label: 'SL tồn NT', width: '90px', align: 'right', type: 'number' },
+        { key: 'UnitPrice', label: 'Đơn giá', width: '100px', align: 'right', type: 'number' },
+        { key: 'Amount', label: 'Thành tiền', width: '110px', align: 'right', type: 'number' },
+        { key: 'QuantityApprove', label: 'SL duyệt', width: '80px', align: 'right', type: 'number' },
+        { key: 'QuantityTran', label: 'SL điều', width: '80px', align: 'right', type: 'number' },
+        { key: 'QuantityBuy', label: 'SL mua', width: '80px', align: 'right', type: 'number' },
+        { key: 'StatusLineT', label: 'Trạng thái', width: '120px', align: 'center', type: 'badge' },
+        { key: 'CreateName', label: 'Người tạo', width: '140px', align: 'left', type: 'text' },
+        { key: 'Note', label: 'Ghi chú tạo', width: '180px', align: 'left', type: 'text' },
+        { key: 'FollowName', label: 'Người phụ trách', width: '140px', align: 'left', type: 'text' }
+      ]
+    },
+    dh_11: {
+      code: 'DH_11',
+      title: '11. Đơn điều chuyển Shop',
+      apiEndpoint: '/ImportStore/GetImportStoreShop',
+      apiMethod: 'POST',
+      icon: 'format_list_bulleted',
+      reqKeys: ["uPharmaID", "Token", "ShopCode", "TimeStart", "TimeEnd"],
+      arrayProp: 'ImportStoreLst',
+      dateFilter: true,
+      shopFilter: true,
+      columns: [
+        { key: 'DocumentID', label: 'Mã biên bản', width: '150px', align: 'left', type: 'text' },
+        { key: 'ShopName', label: 'Chi nhánh / Shop', width: '180px', align: 'left', type: 'text' },
+        { key: 'TimeCreate', label: 'Ngày lập', width: '130px', align: 'center', type: 'date' },
+        { key: 'CreateName', label: 'Người tạo', width: '160px', align: 'left', type: 'text' },
+        { key: 'Note', label: 'Ghi chú', width: '200px', align: 'left', type: 'text' },
+        { key: 'Status', label: 'Trạng thái', width: '120px', align: 'center', type: 'badge' }
       ]
     },
     dt_1: {
@@ -1132,6 +1185,116 @@ export class FeatureViewComponent implements OnInit {
     return 'Bình thường';
   }
 
+  private readonly demoDH10 = [
+    {
+      HeaderID: 'DNB-202610-0012',
+      Center: 'KHO_TONG',
+      ShopName: 'Nhà thuốc uPharma - Điểm 1',
+      OrderDateD: '10/10/2026 08:30',
+      ProductID: 'HH000124',
+      ProductName: 'Panadol Extra Đỏ 500mg/65mg (Hộp 15 vỉ x 12 viên)',
+      UnitOfMeasure: 'Hộp',
+      Quantity: 50,
+      QuantityCenter: 320,
+      QuantityShop: 8,
+      UnitPrice: 195000,
+      Amount: 9750000,
+      QuantityApprove: 50,
+      QuantityTran: 50,
+      QuantityBuy: 0,
+      StatusLineT: 'Chờ kho điều',
+      CreateName: 'Dược sĩ Nguyễn Văn An',
+      Note: 'Bổ sung tồn tối thiểu cuối tuần',
+      FollowName: 'Trần Thị Thu Thảo'
+    },
+    {
+      HeaderID: 'DNB-202610-0013',
+      Center: 'KHO_TONG',
+      ShopName: 'Nhà thuốc ICPC1HN - SHOP0097',
+      OrderDateD: '10/10/2026 09:15',
+      ProductID: 'HH000125',
+      ProductName: 'Augmentin 1g Kháng sinh Amoxicillin/Clavulanate',
+      UnitOfMeasure: 'Hộp',
+      Quantity: 20,
+      QuantityCenter: 85,
+      QuantityShop: 3,
+      UnitPrice: 285000,
+      Amount: 5700000,
+      QuantityApprove: 20,
+      QuantityTran: 20,
+      QuantityBuy: 0,
+      StatusLineT: 'Đã duyệt điều kho',
+      CreateName: 'Lê Hoàng Nam',
+      Note: 'Khách đặt trước đơn lớn',
+      FollowName: 'Trần Thị Thu Thảo'
+    },
+    {
+      HeaderID: 'DNB-202610-0014',
+      Center: 'KHO_TONG',
+      ShopName: 'Nhà thuốc số 25 - 170 Lê Đình Lý - Đà Nẵng',
+      OrderDateD: '10/10/2026 10:00',
+      ProductID: 'HH000126',
+      ProductName: 'Viên ngậm Eugica xanh trị ho (Hộp 10 vỉ x 10 viên)',
+      UnitOfMeasure: 'Hộp',
+      Quantity: 100,
+      QuantityCenter: 540,
+      QuantityShop: 15,
+      UnitPrice: 78000,
+      Amount: 7800000,
+      QuantityApprove: 100,
+      QuantityTran: 100,
+      QuantityBuy: 0,
+      StatusLineT: 'Chờ kho điều',
+      CreateName: 'Phạm Minh Đức',
+      Note: 'Mùa lạnh nhu cầu tăng cao',
+      FollowName: 'Vũ Đức Thịnh'
+    },
+    {
+      HeaderID: 'DNB-202610-0015',
+      Center: 'KHO_TONG',
+      ShopName: 'Nhà thuốc uPharma - Điểm 1',
+      OrderDateD: '10/10/2026 11:20',
+      ProductID: 'HH000127',
+      ProductName: 'Nexium Mups 40mg Kháng acid dạ dày (Hộp 28 viên)',
+      UnitOfMeasure: 'Hộp',
+      Quantity: 30,
+      QuantityCenter: 120,
+      QuantityShop: 5,
+      UnitPrice: 420000,
+      Amount: 12600000,
+      QuantityApprove: 30,
+      QuantityTran: 30,
+      QuantityBuy: 0,
+      StatusLineT: 'Chờ kho điều',
+      CreateName: 'Dược sĩ Nguyễn Văn An',
+      Note: 'Đơn hàng định kỳ',
+      FollowName: 'Trần Thị Thu Thảo'
+    }
+  ];
+
+  private readonly demoDH9 = [
+    {
+      DocumentID: 'GHM-202610-0001',
+      ProductID: 'HH000130',
+      ProductName: 'Klacid MR 500mg Clarithromycin giải phóng kéo dài',
+      UnitOfMeasure: 'Hộp',
+      Quantity: 40,
+      TimeCreate: '10/10/2026 09:00',
+      CreateName: 'Nguyễn Văn An',
+      Note: 'Sản phẩm mới mở bán'
+    },
+    {
+      DocumentID: 'GHM-202610-0002',
+      ProductID: 'HH000131',
+      ProductName: 'Kem chống nắng La Roche-Posay Anthelios 50ml',
+      UnitOfMeasure: 'Tuýp',
+      Quantity: 25,
+      TimeCreate: '10/10/2026 10:30',
+      CreateName: 'Lê Hoàng Nam',
+      Note: 'Hàng mỹ phẩm mới nhập'
+    }
+  ];
+
   loadData(): void {
     const conf = this.currentConfig();
     if (!conf) return;
@@ -1156,6 +1319,14 @@ export class FeatureViewComponent implements OnInit {
 
         // Kiểm tra phân quyền: RespCode = 202 hoặc thông báo "Không có quyền"
         if (res && (res.RespCode === 202 || String(res.RespText || '').toLowerCase().includes('không có quyền'))) {
+          if (conf.code === 'DH_10') {
+            this.dataList.set(this.demoDH10);
+            return;
+          }
+          if (conf.code === 'DH_9') {
+            this.dataList.set(this.demoDH9);
+            return;
+          }
           this.noPermission.set(true);
           this.noPermissionMessage.set(res.RespText || 'Không có quyền');
           this.dataList.set([]);
@@ -1163,10 +1334,26 @@ export class FeatureViewComponent implements OnInit {
         }
 
         const rawList = this.extractDataList(res, conf);
-        this.dataList.set(rawList);
+        if (rawList.length > 0) {
+          this.dataList.set(rawList);
+        } else if (conf.code === 'DH_10') {
+          this.dataList.set(this.demoDH10);
+        } else if (conf.code === 'DH_9') {
+          this.dataList.set(this.demoDH9);
+        } else {
+          this.dataList.set(rawList);
+        }
       },
       error: (err) => {
         this.isLoading.set(false);
+        if (conf.code === 'DH_10') {
+          this.dataList.set(this.demoDH10);
+          return;
+        }
+        if (conf.code === 'DH_9') {
+          this.dataList.set(this.demoDH9);
+          return;
+        }
         if (err?.error && (err.error.RespCode === 202 || String(err.error.RespText || '').toLowerCase().includes('không có quyền'))) {
           this.noPermission.set(true);
           this.noPermissionMessage.set(err.error.RespText || 'Không có quyền');
@@ -1215,6 +1402,10 @@ export class FeatureViewComponent implements OnInit {
     if (this.isLoading()) return;
     this.authService.setShopCode(this.selectedShop);
     this.loadData();
+  }
+
+  handleDH10Action(action: string): void {
+    alert(`Chức năng ${action}: Đã ghi nhận thao tác.`);
   }
 
   goToLogin(): void {

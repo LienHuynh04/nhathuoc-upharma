@@ -89,13 +89,13 @@ export class MainLayoutComponent {
         { code: 'DH_2', title: '2. Đơn đặt hàng', icon: 'shopping_cart', iconColor: '#10b981', route: '/feature/dh_2' },
         { code: 'DH_3', title: '3. Đơn bán hàng', icon: 'point_of_sale', iconColor: '#059669', route: '/pos', isCustomTab: true },
         { code: 'DH_4', title: '4. Báo cáo tốc độ tiêu thụ', icon: 'speed', iconColor: '#f59e0b', route: '/feature/dh_4' },
-        { code: 'DH_5', title: '5. Đơn gọi hàng', icon: 'call', iconColor: '#6366f1', route: '/feature/dh_5' }
+        { code: 'DH_5', title: '5. Đơn gọi hàng', icon: 'description', iconColor: '#64748b', route: '/feature/dh_5' },
+        { code: 'DH_6', title: '6. Điểm thưởng Sales', icon: 'military_tech', iconColor: '#eab308', route: '/feature/dh_6' }
       ],
       itemsCol2: [
-        { code: 'DH_6', title: '6. Điểm thưởng Sales', icon: 'military_tech', iconColor: '#eab308', route: '/feature/dh_6' },
-        { code: 'DH_7', title: '7. Dự trù chuyển kho', icon: 'calculate', iconColor: '#06b6d4', route: '/feature/dh_7' },
-        { code: 'DH_8', title: '8. Kế hoạch mua hàng', icon: 'event_note', iconColor: '#8b5cf6', route: '/feature/dh_8' },
-        { code: 'DH_11', title: '11. Đơn điều chuyển Shop', icon: 'move_down', iconColor: '#f97316', route: '/feature/dh_11' }
+        { code: 'DH_9', title: '9. Gọi hàng sản phẩm mới', icon: 'task_alt', iconColor: '#f59e0b', route: '/feature/dh_9' },
+        { code: 'DH_10', title: '10. Đơn gọi hàng 2', icon: 'description', iconColor: '#0284c7', route: '/feature/dh_10' },
+        { code: 'DH_11', title: '11. Đơn điều chuyển Shop', icon: 'format_list_bulleted', iconColor: '#64748b', route: '/feature/dh_11' }
       ]
     },
     {
@@ -167,10 +167,7 @@ export class MainLayoutComponent {
 
   formatTabTitle(title: string): string {
     if (!title) return 'UPHARMA';
-    if (title === 'Trang chủ') return 'Trang chủ';
-    if (title.startsWith('UPHARMA - ')) return title;
-    const cleanTitle = title.replace(/^\d+\.\s*/, '');
-    return `UPHARMA - ${cleanTitle}`;
+    return title;
   }
 
   logout(): void {
