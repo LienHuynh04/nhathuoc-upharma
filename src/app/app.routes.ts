@@ -1,6 +1,13 @@
 import { Routes } from '@angular/router';
+import { Component } from '@angular/core';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { authGuard, authChildGuard } from './core/guards/auth.guard';
+
+@Component({
+  standalone: true,
+  template: ''
+})
+export class EmptyViewComponent {}
 
 export const routes: Routes = [
   {
@@ -15,8 +22,8 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'product-list',
-        pathMatch: 'full'
+        pathMatch: 'full',
+        component: EmptyViewComponent
       },
       {
         path: 'product-list',
@@ -64,7 +71,7 @@ export const routes: Routes = [
       },
       {
         path: '**',
-        redirectTo: 'product-list'
+        redirectTo: ''
       }
     ]
   }

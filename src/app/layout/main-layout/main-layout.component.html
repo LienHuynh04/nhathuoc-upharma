@@ -4,11 +4,13 @@
     <div class="backstage-container">
       <!-- LEFT BLUE SIDEBAR -->
       <aside class="backstage-sidebar">
-        <!-- Circular back button -->
+        <!-- Circular back button (chỉ hiện khi có tab làm việc đang mở) -->
         <div class="back-btn-wrapper">
-          <button class="circle-back-btn" (click)="tabManager.selectTab('HH_1')" title="Trở về tab làm việc">
-            <span class="material-symbols-outlined">arrow_back</span>
-          </button>
+          @if (hasWorkingTab()) {
+            <button class="circle-back-btn" (click)="returnToWorkingTab()" title="Trở về tab làm việc">
+              <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+          }
         </div>
 
         <!-- Vertical Menu Items -->
@@ -104,8 +106,8 @@
       <!-- BLUE SUBHEADER BAR -->
       <div class="blue-action-bar">
         <div class="bar-left">
-          <button class="split-win-btn" title="Chế độ chia cửa sổ">
-            <span class="material-symbols-outlined">splitscreen</span>
+          <button class="split-win-btn" (click)="goBackToHome()" title="Menu chức năng">
+            <span class="material-symbols-outlined">menu</span>
           </button>
         </div>
 

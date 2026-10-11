@@ -13,7 +13,7 @@ export interface TabItem {
   providedIn: 'root'
 })
 export class TabManagerService {
-  // Default tabs matching real desktop app
+  // Ban đầu chỉ mở Trang chủ (Menu chính), không mở sẵn tab nghiệp vụ nào
   readonly tabs = signal<TabItem[]>([
     {
       id: 'home',
@@ -21,24 +21,10 @@ export class TabManagerService {
       icon: 'home',
       route: '/',
       closable: false
-    },
-    {
-      id: 'HH_1',
-      title: '1. Sản phẩm trong hệ thống',
-      icon: 'inventory_2',
-      route: '/product-list',
-      closable: true
-    },
-    {
-      id: 'HH_FEFO',
-      title: 'Kiểm tra FEFO',
-      icon: 'fact_check',
-      route: '/feature/hh_fefo',
-      closable: true
     }
   ]);
 
-  readonly activeTabId = signal<string>('HH_1');
+  readonly activeTabId = signal<string>('home');
 
   constructor(private router: Router) {}
 
@@ -81,11 +67,13 @@ export class TabManagerService {
     const newTabs = currentTabs.filter(t => t.id !== tabId);
     this.tabs.set(newTabs);
 
-    // If closing active tab, switch to adjacent or first tab
+    // If closing active tab, switch to adjacent or home tab
     if (this.activeTabId() === tabId) {
       const nextTab = newTabs[Math.max(0, tabIndex - 1)];
       if (nextTab) {
         this.selectTab(nextTab.id);
+      } else {
+        this.selectTab('home');
       }
     }
   }

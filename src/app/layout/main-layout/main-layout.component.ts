@@ -1,6 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { TabManagerService, TabItem } from '../../core/services/tab-manager.service';
 import { LoadingService } from '../../core/services/loading.service';
@@ -28,13 +28,15 @@ export interface BackstageCategory {
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'
 })
-export class MainLayoutComponent {
+export class MainLayoutComponent implements OnInit {
   authService = inject(AuthService);
   tabManager = inject(TabManagerService);
   loadingService = inject(LoadingService);
+  private router = inject(Router);
 
   // Active category on the blue left sidebar
   selectedCategory = signal<string>('hang-hoa');
+  lastWorkingTabId = signal<string | null>(null);
 
   // Exact categories and items from uPharma desktop app with actual feature routes
   categories: BackstageCategory[] = [
@@ -135,6 +137,50 @@ export class MainLayoutComponent {
     }
   ];
 
+  ngOnInit(): void {
+    const currentUrl = this.router.url.split('?')[0];
+    if (!currentUrl || currentUrl === '/' || currentUrl === '') {
+      this.tabManager.selectTab('home');
+    } else {
+      const match = this.findMenuItemByRoute(currentUrl);
+      if (match) {
+        this.openMenuItem(match);
+      }
+    }
+  }
+
+  findMenuItemByRoute(url: string): BackstageMenuItem | null {
+    const cleanUrl = url.toLowerCase();
+    for (const cat of this.categories) {
+      for (const item of [...cat.itemsCol1, ...cat.itemsCol2]) {
+        if (item.route && item.route.toLowerCase() === cleanUrl) {
+          return item;
+        }
+        if (`/feature/${item.code.toLowerCase()}` === cleanUrl) {
+          return item;
+        }
+      }
+    }
+    return null;
+  }
+
+  hasWorkingTab(): boolean {
+    return this.tabManager.tabs().some(t => t.id !== 'home');
+  }
+
+  returnToWorkingTab(): void {
+    const tabs = this.tabManager.tabs();
+    const lastId = this.lastWorkingTabId();
+    if (lastId && tabs.some(t => t.id === lastId)) {
+      this.tabManager.selectTab(lastId);
+      return;
+    }
+    const firstWorkTab = tabs.find(t => t.id !== 'home');
+    if (firstWorkTab) {
+      this.tabManager.selectTab(firstWorkTab.id);
+    }
+  }
+
   getCurrentCategory(): BackstageCategory {
     return this.categories.find(c => c.id === this.selectedCategory()) || this.categories[1];
   }
@@ -146,6 +192,7 @@ export class MainLayoutComponent {
 
   openMenuItem(item: BackstageMenuItem): void {
     const route = item.route || `/feature/${item.code.toLowerCase()}`;
+    this.lastWorkingTabId.set(item.code);
     this.tabManager.openTab({
       id: item.code,
       title: item.title,
