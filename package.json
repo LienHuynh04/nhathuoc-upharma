@@ -5,6 +5,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:firebase": "ng build --configuration production",
+    "deploy:firebase": "ng build --configuration production && firebase deploy --project nhathuoc",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -17,6 +19,7 @@
     "@angular/forms": "^22.2.0",
     "@angular/platform-browser": "^22.2.0",
     "@angular/router": "^22.2.0",
+    "firebase": "^13.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "xlsx": "^0.18.5"
