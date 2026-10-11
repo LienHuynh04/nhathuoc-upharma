@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "build:firebase": "ng build --configuration production",
-    "deploy:firebase": "ng build --configuration production && firebase deploy --project nhathuoc",
+    "deploy": "npm run build:firebase && firebase deploy",
+    "deploy:firebase": "npm run build:firebase && firebase deploy --project nhathuoc",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
