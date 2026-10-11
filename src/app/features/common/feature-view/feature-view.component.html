@@ -216,7 +216,7 @@
               </div>
             </td>
           </tr>
-        } @else if (filteredData().length === 0 && !isLoading()) {
+        } @else if (hasLoaded() && filteredData().length === 0 && !isLoading()) {
           <tr class="empty-row">
             <td [attr.colspan]="(currentConfig()?.columns?.length || 0) + 1" class="text-center">
               <div class="empty-state">

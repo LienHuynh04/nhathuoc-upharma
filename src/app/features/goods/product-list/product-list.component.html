@@ -117,7 +117,7 @@
                 </div>
               </td>
             </tr>
-          } @else if (filteredProducts().length === 0 && !isLoading()) {
+          } @else if (hasLoaded() && filteredProducts().length === 0 && !isLoading()) {
             <tr class="empty-row">
               <td colspan="17" class="text-center py-8 text-muted">
                 Không tìm thấy sản phẩm nào phù hợp với điều kiện tìm kiếm.

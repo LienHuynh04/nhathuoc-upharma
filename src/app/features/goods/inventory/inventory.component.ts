@@ -69,6 +69,7 @@ export class InventoryComponent implements OnInit {
   activeTab: 'inventory' | 'stamps' = 'inventory';
 
   isLoading = signal<boolean>(false);
+  hasLoaded = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
   noPermission = signal<boolean>(false);
   noPermissionMessage = signal<string | null>(null);
@@ -99,7 +100,7 @@ export class InventoryComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.loadData();
+    // Không tự động load API khi vào màn hình, chờ user bấm Tải lại
   }
 
   @HostListener('document:click')
@@ -160,6 +161,7 @@ export class InventoryComponent implements OnInit {
 
   loadData(): void {
     if (this.isLoading()) return;
+    this.hasLoaded.set(true);
     this.isLoading.set(true);
     this.errorMessage.set(null);
     this.noPermission.set(false);
@@ -262,6 +264,10 @@ export class InventoryComponent implements OnInit {
       return;
     }
     // Fallback to demo data
+    this.stampList.set(this.demoStamps);
+    this.inventoryList.set(this.demoInventories);
+  }
+
   filteredStamps(): StampItem[] {
     if (!this.stampSearch.trim()) {
       return this.stampList();

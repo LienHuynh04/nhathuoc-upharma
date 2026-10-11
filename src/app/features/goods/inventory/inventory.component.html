@@ -189,6 +189,12 @@
                   </div>
                 </td>
               </tr>
+            } @else if (hasLoaded() && filteredStamps().length === 0 && !isLoading()) {
+              <tr class="empty-row">
+                <td colspan="7" class="text-center py-6 text-muted" style="padding: 24px 8px; color: #8c959f; font-size: 12px;">
+                  Không có tem tồn kho
+                </td>
+              </tr>
             } @else {
               @for (item of filteredStamps(); track $index) {
                 <tr [class.even-row]="$index % 2 === 1">
@@ -254,6 +260,12 @@
                     <h4 class="no-perm-title">Không có quyền</h4>
                     <span class="no-perm-badge">Mã 202: {{ noPermissionMessage() || 'Không có quyền' }}</span>
                   </div>
+                </td>
+              </tr>
+            } @else if (hasLoaded() && filteredInventories().length === 0 && !isLoading()) {
+              <tr class="empty-row">
+                <td colspan="10" class="text-center py-6 text-muted" style="padding: 24px 8px; color: #8c959f; font-size: 12px;">
+                  Không có sản phẩm tồn kho phù hợp
                 </td>
               </tr>
             } @else {

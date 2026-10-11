@@ -55,6 +55,7 @@ export class FeatureViewComponent implements OnInit {
   endDate = new Date().toISOString().split('T')[0];
 
   isLoading = signal<boolean>(false);
+  hasLoaded = signal<boolean>(false);
   dataList = signal<any[]>([]);
   errorMessage = signal<string | null>(null);
   noPermission = signal<boolean>(false);
@@ -779,7 +780,6 @@ export class FeatureViewComponent implements OnInit {
       const conf = this.FEATURE_REGISTRY[code];
       if (conf) {
         this.currentConfig.set(conf);
-        this.loadData();
       } else {
         // Fallback generic config
         this.currentConfig.set({
@@ -794,8 +794,13 @@ export class FeatureViewComponent implements OnInit {
             { key: 'Status', label: 'Trạng thái', width: '120px', align: 'center' }
           ]
         });
-        this.loadData();
       }
+      // Không tự động gọi API khi vào màn hình hoặc chuyển chức năng, để user tự bấm Tải lại
+      this.dataList.set([]);
+      this.errorMessage.set(null);
+      this.noPermission.set(false);
+      this.noPermissionMessage.set(null);
+      this.hasLoaded.set(false);
     });
   }
 
@@ -1302,6 +1307,7 @@ export class FeatureViewComponent implements OnInit {
     // Chặn người dùng spam gọi API liên tiếp
     if (this.isLoading()) return;
 
+    this.hasLoaded.set(true);
     this.isLoading.set(true);
     this.errorMessage.set(null);
     this.noPermission.set(false);

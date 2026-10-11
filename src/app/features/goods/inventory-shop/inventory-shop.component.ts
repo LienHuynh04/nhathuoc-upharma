@@ -56,12 +56,13 @@ export class InventoryShopComponent implements OnInit {
   searchStamp = '';
 
   isLoading = signal<boolean>(false);
+  hasLoaded = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
   noPermission = signal<boolean>(false);
   noPermissionMessage = signal<string | null>(null);
 
-  totalInventoryValue = signal<number>(399431562);
-  totalProductCount = signal<number>(1748);
+  totalInventoryValue = signal<number>(0);
+  totalProductCount = signal<number>(0);
 
   inventoryList = signal<ShopInventoryItem[]>([]);
   stampList = signal<ShopStampItem[]>([]);
@@ -94,13 +95,14 @@ export class InventoryShopComponent implements OnInit {
   ngOnInit(): void {
     // Đảm bảo focus/shopcode đầu tiên luôn là shop đầu tiên của user
     this.selectedShop = this.authService.getFirstShopCode();
-    this.loadData();
+    // Không tự động load API khi vào màn hình, chờ user bấm Tải lại
   }
 
   loadData(): void {
     // Chặn gọi trùng lặp nếu API đang thực thi
     if (this.isLoading()) return;
 
+    this.hasLoaded.set(true);
     this.isLoading.set(true);
     this.errorMessage.set(null);
     this.noPermission.set(false);
@@ -186,6 +188,8 @@ export class InventoryShopComponent implements OnInit {
         } else {
           this.inventoryList.set(this.demoInventory);
           this.stampList.set(this.demoStamps);
+          this.totalInventoryValue.set(399431562);
+          this.totalProductCount.set(this.demoInventory.length);
         }
       },
       error: (err: any) => {
@@ -195,10 +199,14 @@ export class InventoryShopComponent implements OnInit {
           this.noPermissionMessage.set(err.error.RespText || 'Không có quyền');
           this.inventoryList.set([]);
           this.stampList.set([]);
+          this.totalInventoryValue.set(0);
+          this.totalProductCount.set(0);
           return;
         }
         this.inventoryList.set(this.demoInventory);
         this.stampList.set(this.demoStamps);
+        this.totalInventoryValue.set(399431562);
+        this.totalProductCount.set(this.demoInventory.length);
       }
     });
   }

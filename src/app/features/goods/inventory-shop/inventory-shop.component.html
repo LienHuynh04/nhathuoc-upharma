@@ -128,6 +128,15 @@
                   </div>
                 </td>
               </tr>
+            } @else if (hasLoaded() && filteredInventory().length === 0 && !isLoading()) {
+              <tr class="empty-row">
+                <td colspan="12" class="text-center">
+                  <div class="empty-state">
+                    <span class="material-symbols-outlined empty-icon">inventory_2</span>
+                    <p>Không có sản phẩm tồn kho nào phù hợp.</p>
+                  </div>
+                </td>
+              </tr>
             } @else {
               @for (item of filteredInventory(); track $index) {
                 <!-- Yellow highlight for items under 90 days matching Screenshot 3 -->
@@ -183,16 +192,24 @@
               </tr>
             </thead>
             <tbody>
-              @for (item of filteredStamps(); track $index) {
-                <tr [class.even-row]="$index % 2 === 1">
-                  <td class="stt-col text-center">{{ $index + 1 }}</td>
-                  <td>{{ item.ProductID }}</td>
-                  <td>{{ item.ProductName }}</td>
-                  <td>{{ item.LotIndex }}</td>
-                  <td>{{ item.LotCode }}</td>
-                  <td class="text-right">{{ item.Stock }}</td>
-                  <td class="text-right">{{ item.Quantity }}</td>
+              @if (hasLoaded() && filteredStamps().length === 0 && !isLoading()) {
+                <tr class="empty-row">
+                  <td colspan="7" class="text-center py-6 text-muted" style="padding: 24px 8px; color: #8c959f; font-size: 12px;">
+                    Không có tem tồn kho
+                  </td>
                 </tr>
+              } @else {
+                @for (item of filteredStamps(); track $index) {
+                  <tr [class.even-row]="$index % 2 === 1">
+                    <td class="stt-col text-center">{{ $index + 1 }}</td>
+                    <td>{{ item.ProductID }}</td>
+                    <td>{{ item.ProductName }}</td>
+                    <td>{{ item.LotIndex }}</td>
+                    <td>{{ item.LotCode }}</td>
+                    <td class="text-right">{{ item.Stock }}</td>
+                    <td class="text-right">{{ item.Quantity }}</td>
+                  </tr>
+                }
               }
             </tbody>
           </table>

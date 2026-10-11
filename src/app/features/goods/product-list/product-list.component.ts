@@ -48,12 +48,16 @@ export class ProductListComponent implements OnInit, AfterViewInit {
   searchKeyword = '';
   selectedIndex = signal<number>(0);
   isLoading = signal<boolean>(false);
+  hasLoaded = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
   noPermission = signal<boolean>(false);
   noPermissionMessage = signal<string | null>(null);
 
+  // Danh sách sản phẩm thực tế hiển thị trên bảng (khởi tạo rỗng, user bấm Tải lại mới load)
+  products = signal<ProductItem[]>([]);
+
   // Danh sách sản phẩm mẫu đối soát 1:1 theo ảnh thực tế DevExpress NHATHUOC.exe
-  products = signal<ProductItem[]>([
+  private readonly demoProducts: ProductItem[] = [
     {
       ProductCode: 'TB02919',
       ProductName: 'Que thử đường huyết On Call Plus H25',
@@ -434,10 +438,10 @@ export class ProductListComponent implements OnInit, AfterViewInit {
       CreatedBy: 'admin',
       IsPrescription: false
     }
-  ]);
+  ];
 
   ngOnInit(): void {
-    this.loadProducts();
+    // Không tự động load API khi vào màn hình, chờ user bấm Tải lại hoặc Tìm kiếm
   }
 
   ngAfterViewInit(): void {
@@ -503,6 +507,7 @@ export class ProductListComponent implements OnInit, AfterViewInit {
     // Chặn người dùng spam gọi API liên tiếp
     if (this.isLoading()) return;
 
+    this.hasLoaded.set(true);
     this.isLoading.set(true);
     this.errorMessage.set(null);
     this.noPermission.set(false);
@@ -640,6 +645,8 @@ export class ProductListComponent implements OnInit, AfterViewInit {
             };
           });
           this.products.set(mapped);
+        } else {
+          this.products.set(this.demoProducts);
         }
       },
       error: (err: any) => {
@@ -650,7 +657,7 @@ export class ProductListComponent implements OnInit, AfterViewInit {
           this.products.set([]);
           return;
         }
-        this.errorMessage.set(err?.error?.RespText || 'Không thể kết nối đến máy chủ.');
+        this.products.set(this.demoProducts);
       }
     });
   }
